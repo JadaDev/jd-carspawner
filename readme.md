@@ -2,6 +2,8 @@
 
 **A simple car spawner for QBCore jobs and car rentals**
 
+[![jd-carspawner preview](https://img.youtube.com/vi/TkyZzg5bl3Q/maxresdefault.jpg)](https://www.youtube.com/watch?v=TkyZzg5bl3Q)
+
 ---
 
 ## Table of Contents
@@ -59,15 +61,7 @@ All important configuration lives in `config.lua`.
 
 Example formats you may find in a config file (read the actual `config.lua` for exact names used):
 
-```lua
--- vector3 example
-vector3(215.76, -810.12, 29.73)
-
--- or table example
-{ x = 215.76, y = -810.12, z = 29.73, heading = 90.0 }
-```
-
-> **Note:** There are no chat commands for spawning in this resource. Spawns are triggered by the job interactions / rental ped behavior defined in the scripts — check `client.lua` to see how interactions are handled and which config entries are used.
+> **Note:** There are no chat commands for spawning in this resource. Spawns are triggered by the job interactions / rental ped behavior defined in the scripts — check `config.lua` to see how interactions are handled and which config entries are used.
 
 ## How it works
 
