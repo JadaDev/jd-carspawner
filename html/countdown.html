@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Rental Countdown</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background: transparent !important;
+            background-color: transparent !important;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            pointer-events: none;
+        }
+
+        #countdown {
+            position: fixed;
+            top: 40px;
+            right: 20px;
+            min-width: 260px;
+            padding: 20px 24px;
+            border-radius: 16px;
+            background: rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            pointer-events: auto;
+            transform: translateX(100%);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #countdown.show {
+            transform: translateX(0);
+        }
+
+        #countdown.critical {
+            background: linear-gradient(135deg, 
+                rgba(127, 29, 29, 0.95) 0%, 
+                rgba(153, 27, 27, 0.95) 50%, 
+                rgba(185, 28, 28, 0.95) 100%);
+            border-color: rgba(248, 113, 113, 0.3);
+            animation: criticalPulse 0.6s infinite;
+        }
+
+        #countdown.pulse {
+            animation: pulse 1.5s infinite;
+            border-color: rgba(251, 191, 36, 0.4);
+        }
+
+        .logo-container {
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            box-shadow: none;
+            object-fit: contain;
+            display: block;
+            background-color: cadetblue;
+            transition: all 0.3s ease;
+        }
+
+
+        .logo-glow {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 16px;
+            background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            
+        }
+
+        #countdown.pulse .logo-glow {
+            opacity: 1;
+            animation: logoGlow 1.5s infinite;
+        }
+
+        #countdown.critical .logo-glow {
+            opacity: 1;
+            background: linear-gradient(45deg, transparent, rgba(248, 113, 113, 0.7), transparent);
+            animation: criticalGlow 0.6s infinite;
+        }
+
+        .content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .title {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            text-shadow: none;
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+
+        .time {
+            color: #fff !important;
+            font-size: 32px;
+            font-weight: 700;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Courier New', monospace;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            background: transparent !important;
+            background-color: transparent !important;
+            line-height: 1;
+            margin: 2px 0;
+        }
+
+        #countdown.critical .time {
+            color: #fca5a5 !important;
+        }
+
+        .warning {
+            color: rgba(255, 255, 255, 0.7) !important;
+            font-size: 11px;
+            font-weight: 500;
+            margin-top: 4px;
+            text-shadow: none;
+            background: transparent !important;
+            background-color: transparent !important;
+            opacity: 0.8;
+        }
+
+        #countdown.critical .warning {
+            color: rgba(248, 113, 113, 0.9) !important;
+            font-weight: 600;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Status indicator dot */
+        .status-dot {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.8);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+
+        #countdown.pulse .status-dot {
+            background: rgba(251, 191, 36, 0.9);
+            animation: dotPulse 1.5s infinite;
+        }
+
+        #countdown.critical .status-dot {
+            background: rgba(248, 113, 113, 0.9);
+            animation: criticalDot 0.6s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: none;
+            }
+            50% {
+                box-shadow: none;
+            }
+        }
+
+        @keyframes criticalPulse {
+            0%, 100% {
+                transform: translateX(0) scale(1);
+                box-shadow: none;
+            }
+            50% {
+                transform: translateX(0) scale(1.02);
+                box-shadow: none;
+            }
+        }
+
+        @keyframes logoGlow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes criticalGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes criticalDot {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+
+        /* Subtle gradient overlay for depth */
+        #countdown::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 16px;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.05) 0%, 
+                transparent 50%, 
+                rgba(0, 0, 0, 0.05) 100%);
+            pointer-events: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="countdown" class="hidden">
+        <div class="logo-container">
+            <div class="logo-glow"></div>
+            <img src="https://i.ibb.co/HfXgrVCT/jd-scripts.webp" alt="Server Logo" class="logo" />
+            <div class="status-dot"></div>
+        </div>
+        <div class="content">
+            <div class="title">Rental Expires In</div>
+            <div id="time" class="time">01:00</div>
+            <div class="warning">Vehicle will be removed automatically</div>
+        </div>
+    </div>
+
+    <script>
+        let interval = null;
+        let visible = false;
+        let startTime = null;
+        let totalDuration = 0;
+        let lastDisplayedTime = null;
+        let serverSyncTime = null;
+        let serverSyncSeconds = null;
+
+        function formatTime(secs) {
+            const m = Math.floor(secs / 60).toString().padStart(2, '0');
+            const s = (secs % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function getCurrentSeconds() {
+            if (!startTime || !totalDuration) return 0;
+            
+            const now = Date.now();
+            const elapsed = Math.floor((now - startTime) / 1000);
+            return Math.max(0, totalDuration - elapsed);
+        }
+
+        function showCountdown(totalSeconds) {
+            const box = document.getElementById('countdown');
+            const time = document.getElementById('time');
+
+            if (!visible) {
+                box.classList.remove('hidden');
+                setTimeout(() => box.classList.add('show'), 10);
+                visible = true;
+            }
+
+            // Initialize timing
+            startTime = Date.now();
+            totalDuration = totalSeconds;
+            lastDisplayedTime = totalSeconds;
+            serverSyncTime = Date.now();
+            serverSyncSeconds = totalSeconds;
+
+            clearInterval(interval);
+
+            const tick = () => {
+                const currentSeconds = getCurrentSeconds();
+
+                if (currentSeconds <= 0) {
+                    hideCountdown();
+                    return;
+                }
+
+                // Only update display if the second has actually changed
+                if (currentSeconds !== lastDisplayedTime) {
+                    time.textContent = formatTime(currentSeconds);
+                    lastDisplayedTime = currentSeconds;
+
+                    // Update visual states
+                    if (currentSeconds <= 10) {
+                        box.classList.add('critical');
+                        box.classList.remove('pulse');
+                    } else if (currentSeconds <= 30) {
+                        box.classList.add('pulse');
+                        box.classList.remove('critical');
+                    } else {
+                        box.classList.remove('pulse', 'critical');
+                    }
+                }
+            };
+
+            tick(); // Initial tick
+            interval = setInterval(tick, 250); // Update every 250ms for smooth display
+        }
+
+        function hideCountdown() {
+            const box = document.getElementById('countdown');
+
+            if (visible) {
+                box.classList.remove('show');
+                setTimeout(() => {
+                    box.classList.add('hidden');
+                    box.classList.remove('pulse', 'critical');
+                }, 400);
+                visible = false;
+            }
+
+            clearInterval(interval);
+            interval = null;
+            startTime = null;
+            totalDuration = 0;
+            lastDisplayedTime = null;
+            serverSyncTime = null;
+            serverSyncSeconds = null;
+        }
+
+        function updateCountdown(seconds) {
+            const box = document.getElementById('countdown');
+            const time = document.getElementById('time');
+
+            if (seconds <= 0) {
+                hideCountdown();
+                return;
+            }
+
+            // If countdown is not visible, show it first
+            if (!visible) {
+                showCountdown(seconds);
+                return;
+            }
+
+            const now = Date.now();
+            
+            // Only sync if there's a significant difference or if it's been a while
+            const timeSinceLastSync = now - (serverSyncTime || 0);
+            const currentCalculated = getCurrentSeconds();
+            const difference = Math.abs(currentCalculated - seconds);
+            
+            // Sync conditions:
+            // 1. Difference is more than 2 seconds
+            // 2. It's been more than 10 seconds since last sync
+            // 3. First server update after showing countdown
+            if (difference > 2 || timeSinceLastSync > 10000 || !serverSyncTime) {
+                // Smooth adjustment - don't cause sudden jumps
+                const targetStartTime = now - (totalDuration - seconds) * 1000;
+                
+                // If the adjustment is small (less than 3 seconds), gradually adjust
+                if (difference <= 3 && startTime) {
+                    const adjustmentNeeded = targetStartTime - startTime;
+                    startTime += adjustmentNeeded * 0.3; // Gradual adjustment
+                } else {
+                    // Large difference, do immediate correction
+                    startTime = targetStartTime;
+                }
+                
+                serverSyncTime = now;
+                serverSyncSeconds = seconds;
+            }
+
+            // Force update display with current calculated time to avoid spikes
+            const displaySeconds = getCurrentSeconds();
+            
+            // Only update if different from last displayed to prevent flickering
+            if (displaySeconds !== lastDisplayedTime) {
+                time.textContent = formatTime(displaySeconds);
+                lastDisplayedTime = displaySeconds;
+
+                if (displaySeconds <= 10) {
+                    box.classList.add('critical');
+                    box.classList.remove('pulse');
+                } else if (displaySeconds <= 30) {
+                    box.classList.add('pulse');
+                    box.classList.remove('critical');
+                } else {
+                    box.classList.remove('pulse', 'critical');
+                }
+            }
+        }
+
+        // Receive NUI messages from Lua
+        window.addEventListener('message', (event) => {
+            const { type, seconds } = event.data;
+            switch (type) {
+                case 'showCountdown':
+                    showCountdown(seconds);
+                    break;
+                case 'updateCountdown':
+                    updateCountdown(seconds);
+                    break;
+                case 'hideCountdown':
+                    hideCountdown();
+                    break;
+            }
+        });
+
+        // Signal that the iframe is ready
+        document.addEventListener('DOMContentLoaded', function() {
+        });
+    </script>
+</body>
+</html>

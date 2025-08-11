@@ -1,0 +1,1121 @@
+/* Siren Buttons Styling */
+.siren-btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+.start-siren-btn {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #fff;
+}
+.start-siren-btn:hover {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    transform: translateY(-2px);
+}
+.stop-siren-btn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+}
+.stop-siren-btn:hover {
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    transform: translateY(-2px);
+}
+/* Job Siren Buttons Styling */
+.start-job-siren-btn {
+    background: linear-gradient(135deg, #14b8a6, #0e7490);
+    color: #fff;
+}
+.start-job-siren-btn:hover {
+    background: linear-gradient(135deg, #0e7490, #155e75);
+    transform: translateY(-2px);
+}
+.stop-job-siren-btn {
+    background: linear-gradient(135deg, #f59e42, #ea580c);
+    color: #fff;
+}
+.stop-job-siren-btn:hover {
+    background: linear-gradient(135deg, #ea580c, #c2410c);
+    transform: translateY(-2px);
+}
+/* Modern Dark Blue Theme Car Spawner UI */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+    color: #ffffff;
+    overflow: hidden;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+/* Main Container */
+.container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 95%;
+    max-width: 1250px;
+    max-height: 95vh;
+    background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+    border-radius: 20px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    z-index: 1001;
+    overflow: visible;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    padding: 20px 30px;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-icon {
+    font-size: 24px;
+    color: #ffffff;
+}
+
+.header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.close-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #ffffff;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+/* Menu Content */
+.menu-content {
+    padding: 30px;
+    max-height: calc(95vh - 100px);
+    overflow-y: auto;
+    overflow-x: visible;
+}
+
+.menu-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.menu-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.menu-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    border-radius: 4px;
+}
+
+.menu-content::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+}
+
+/* Section Headers */
+.section-header {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.section-header h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 8px;
+}
+
+.section-header p {
+    font-size: 16px;
+    color: #94a3b8;
+}
+
+/* Current Player Info at top right - smaller */
+.current-player-info {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 8px 12px;
+    background: rgba(59, 130, 246, 0.2);
+    border-radius: 8px;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    font-size: 12px;
+}
+
+.current-player-info .player-detail {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #ffffff;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.current-player-info .player-detail i {
+    color: #3b82f6;
+    font-size: 11px;
+    width: 12px;
+}
+
+/* Vehicle Grid */
+.vehicle-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 20px;
+    padding: 20px;
+    margin-top: 50px;
+    margin-bottom: 30px;
+    max-height: 700px;
+    overflow-y: auto;
+    padding-right: 10px;
+    padding-top: 20px;
+    box-sizing: border-box;
+}
+
+.vehicle-grid::-webkit-scrollbar {
+    width: 8px;
+}
+
+.vehicle-grid::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.vehicle-grid::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    border-radius: 4px;
+}
+
+.vehicle-grid::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+}
+
+.vehicle-card {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-radius: 15px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    height: 280px;
+    
+    flex: 1 1 270px;
+    max-width: 270px;
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.vehicle-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.vehicle-card:hover::before {
+    left: 100%;
+}
+
+.vehicle-card:hover {
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(59, 130, 246, 0.2);
+    z-index: 10;
+}
+
+.vehicle-card.selected {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+}
+
+.vehicle-image {
+    width: 100%;
+    height: 120px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 14px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.vehicle-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.vehicle-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.vehicle-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    text-transform: capitalize;
+    margin-bottom: 5px;
+}
+
+.vehicle-grade {
+    font-size: 12px;
+    color: #3b82f6;
+    font-weight: 500;
+    background: rgba(59, 130, 246, 0.1);
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    text-transform: capitalize;
+}
+
+.vehicle-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 10px;
+}
+
+.vehicle-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.vehicle-detail i {
+    margin-right: 5px;
+    color: #3b82f6;
+    width: 12px;
+}
+
+.vehicle-price {
+    font-size: 16px;
+    color: #10b981;
+    text-align: center;
+    margin-top: auto;
+    font-weight: 600;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* Rental Sections */
+.rental-section {
+    margin-bottom: 30px;
+}
+
+.rental-section h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 15px;
+}
+
+/* Color Grid */
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.color-option {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.2s ease;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.color-option:hover {
+    transform: scale(1.15);
+    border-color: #3b82f6;
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+}
+
+.color-option.selected {
+    border-color: #10b981;
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+}
+
+.color-option.selected {
+    border-color: #3b82f6;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+/* Time Grid */
+.time-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.time-option {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.time-option:hover {
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+}
+
+.time-option.selected {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+}
+
+/* Payment Grid */
+.payment-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+.payment-option {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border: 3px solid rgba(59, 130, 246, 0.3);
+    border-radius: 20px;
+    padding: 25px 35px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    min-width: 120px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.payment-option::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.payment-option:hover::before {
+    left: 100%;
+}
+
+.payment-option:hover {
+    border-color: #3b82f6;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.payment-option.selected {
+    border-color: #10b981;
+    background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
+    transform: scale(1.03);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+.payment-option.selected i {
+    color: #ffffff;
+}
+
+.payment-option i {
+    font-size: 28px;
+    color: #3b82f6;
+    transition: all 0.3s ease;
+}
+
+.payment-option span {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Money Display */
+.money-display {
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 5px;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    min-width: 80px;
+    text-align: center;
+}
+
+.payment-option.selected .money-display {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(16, 185, 129, 0.4);
+}
+
+/* Summary Card */
+.summary-card {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-radius: 15px;
+    padding: 25px;
+}
+
+.summary-card h3 {
+    color: #ffffff;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-item.total {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-top: 10px;
+    padding-top: 15px;
+    border-top: 2px solid #3b82f6;
+}
+
+.summary-item span:last-child {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.summary-item.total span:last-child {
+    color: #10b981;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 150px;
+    justify-content: center;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #374151 0%, #6b7280 100%);
+    color: #ffffff;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(107, 114, 128, 0.3);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 98%;
+        max-height: 98vh;
+    }
+    
+    .header {
+        padding: 15px 20px;
+    }
+    
+    .menu-content {
+        padding: 20px;
+        max-height: calc(98vh - 80px);
+    }
+    
+    .section-header {
+        margin-bottom: 50px;
+    }
+    
+    .current-player-info {
+        position: static;
+        margin-top: 15px;
+        align-self: center;
+        font-size: 11px;
+    }
+    
+    .vehicle-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        max-height: 500px;
+        gap: 15px;
+    }
+    
+    .vehicle-card {
+        min-height: 200px;
+    }
+    
+    .vehicle-image {
+        height: 100px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+    
+    .color-grid {
+        grid-template-columns: repeat(5, 1fr);
+        max-width: 100%;
+        gap: 6px;
+    }
+    
+    .color-option {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .payment-grid {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px 0;
+    }
+    
+    .payment-option {
+        min-width: 200px;
+        padding: 20px 30px;
+    }
+    
+    .vehicle-actions {
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .action-btn {
+        padding: 10px;
+        font-size: 13px;
+    }
+    
+    .player-info {
+        margin-bottom: 12px;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+    position: relative;
+    background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+    border-radius: 15px;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    width: 400px;
+    max-width: 90vw;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.modal-header h3 {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.modal-close-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #ffffff;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.selected-vehicle-info {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.selected-vehicle-image {
+    width: 120px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.selected-vehicle-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    padding: 5px;
+}
+
+.selected-vehicle-details h4 {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.selected-vehicle-details p {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    padding: 20px 25px;
+    border-top: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.modal-actions .btn {
+    flex: 1;
+}
+
+/* Countdown animations for direct DOM approach */
+#countdown-overlay {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.9), rgba(185, 28, 28, 0.9)) !important;
+    background-color: rgba(220, 38, 38, 0.9) !important;
+}
+
+#countdown-overlay * {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    50% {
+        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.6), 0 0 20px rgba(220, 38, 38, 0.4);
+    }
+}
+
+@keyframes criticalPulse {
+    0%, 100% {
+        transform: translateX(0) scale(1);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    50% {
+        transform: translateX(0) scale(1.05);
+        box-shadow: 0 8px 24px rgba(255, 0, 0, 0.6), 0 0 30px rgba(255, 0, 0, 0.4);
+    }
+}
+
+/* ===============================================
+   RENTAL MANAGEMENT STYLES
+   =============================================== */
+
+.rental-management-container {
+    background: linear-gradient(135deg, rgba(13, 35, 82, 0.95), rgba(29, 53, 87, 0.9));
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 1200px;
+    width: 90vw;
+    margin: 50px auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(69, 123, 157, 0.3);
+}
+
+.rental-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgba(69, 123, 157, 0.3);
+}
+
+.rental-header h2 {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.close-btn {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border: 1px solid #dc3545;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.close-btn:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.rental-content {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.no-rentals {
+    text-align: center;
+    color: #8fa4af;
+    font-size: 18px;
+    padding: 40px 20px;
+}
+
+.rental-item {
+    background: rgba(69, 123, 157, 0.1);
+    border: 1px solid rgba(69, 123, 157, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.rental-item:hover {
+    background: rgba(69, 123, 157, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.rental-info h3 {
+    color: #ffffff;
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.rental-info p {
+    color: #8fa4af;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.rental-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.locate-btn, .hide-btn, .return-btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.locate-btn {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.locate-btn:hover {
+    background: linear-gradient(135deg, #20c997, #17a2b8);
+    transform: translateY(-2px);
+}
+
+.hide-btn {
+    background: linear-gradient(135deg, #6c757d, #495057);
+    color: white;
+}
+
+.hide-btn:hover {
+    background: linear-gradient(135deg, #495057, #343a40);
+    transform: translateY(-2px);
+}
+
+.return-btn {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
+    color: #333;
+}
+
+.return-btn:hover {
+    background: linear-gradient(135deg, #fd7e14, #dc3545);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Timer styling for rental management */
+.timer-display {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.time-remaining {
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ===============================================
+   JOB VEHICLE MANAGEMENT STYLES
+   =============================================== */
+
+.vehicle-section {
+    margin-bottom: 30px;
+}
+
+.section-title {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(69, 123, 157, 0.3);
+}
+
+.job-vehicle-item {
+    background: rgba(40, 167, 69, 0.1);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.job-vehicle-item:hover {
+    background: rgba(40, 167, 69, 0.2);
+}
+
+.job-vehicle-item .rental-info h3 {
+    color: #28a745;
+}
+
+.job-info {
+    color: #20c997 !important;
+    font-weight: 500;
+}
+
+.store-btn {
+    background: linear-gradient(135deg, #17a2b8, #6f42c1);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.store-btn:hover {
+    background: linear-gradient(135deg, #6f42c1, #e83e8c);
+    transform: translateY(-2px);
+}
+

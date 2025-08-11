@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Spawner</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Countdown transparency override to prevent black background */
+        #countdown-overlay {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.9), rgba(185, 28, 28, 0.9)) !important;
+            background-color: transparent !important;
+        }
+        #countdown-overlay * {
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+        
+        /* Ensure no black backgrounds anywhere */
+        body, html {
+            background-color: transparent !important;
+        }
+        
+        /* Extra aggressive countdown background */
+        #countdown-overlay,
+        .countdown-title,
+        .countdown-time,
+        .countdown-warning {
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+        
+        /* Override any potential black background from animations or hover states */
+        #countdown-overlay:before,
+        #countdown-overlay:after,
+        #countdown-overlay *:before,
+        #countdown-overlay *:after {
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="hidden">
+        <div class="overlay"></div>
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <i class="fas fa-car header-icon"></i>
+                        <h1 id="menu-title">Vehicle Spawner</h1>
+                    </div>
+                    <button class="close-btn" onclick="closeMenu()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Job Menu -->
+            <div id="job-menu" class="menu-content hidden">
+                <div class="section-header">
+                    <h2>Available Vehicles</h2>
+                    <p>Select a vehicle to spawn</p>
+                    
+                    <!-- Player Info at the top -->
+                    <div class="current-player-info">
+                        <div class="player-detail">
+                            <i class="fas fa-user"></i>
+                            <span class="player-name" id="current-player-name">Unknown Player</span>
+                        </div>
+                        <div class="player-detail">
+                            <i class="fas fa-id-badge"></i>
+                            <span class="player-id" id="current-player-id">ID: N/A</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="vehicle-grid" id="job-vehicles">
+                    <!-- Vehicles will be populated here -->
+                </div>
+            </div>
+
+            <!-- Rental Menu -->
+            <div id="rental-menu" class="menu-content hidden">
+                <div class="section-header">
+                    <h2>Vehicle Rental</h2>
+                    <p>Choose your rental vehicle and options</p>
+                    
+                    <!-- Player Info at the top -->
+                    <div class="current-player-info">
+                        <div class="player-detail">
+                            <i class="fas fa-user"></i>
+                            <span class="player-name" id="rental-player-name">Unknown Player</span>
+                        </div>
+                        <div class="player-detail">
+                            <i class="fas fa-id-badge"></i>
+                            <span class="player-id" id="rental-player-id">ID: N/A</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Selection -->
+                <div class="rental-section">
+                    <h3>Select Vehicle</h3>
+                    <div class="vehicle-grid" id="rental-vehicles">
+                        <!-- Rental vehicles will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Color Selection -->
+                <div class="rental-section" id="color-section" style="display: none;">
+                    <h3>Select Color</h3>
+                    <div class="color-grid">
+                        <div class="color-option" data-color="0" style="background: #000000;" title="Black"></div>
+                        <div class="color-option" data-color="1" style="background: #ffffff;" title="White"></div>
+                        <div class="color-option" data-color="2" style="background: #ff0000;" title="Red"></div>
+                        <div class="color-option" data-color="3" style="background: #00ff00;" title="Green"></div>
+                        <div class="color-option" data-color="4" style="background: #0000ff;" title="Blue"></div>
+                        <div class="color-option" data-color="5" style="background: #ffff00;" title="Yellow"></div>
+                        <div class="color-option" data-color="6" style="background: #ff00ff;" title="Magenta"></div>
+                        <div class="color-option" data-color="7" style="background: #00ffff;" title="Cyan"></div>
+                        <div class="color-option" data-color="8" style="background: #c0c0c0;" title="Silver"></div>
+                        <div class="color-option" data-color="9" style="background: #808080;" title="Gray"></div>
+                        <div class="color-option" data-color="10" style="background: #800000;" title="Maroon"></div>
+                        <div class="color-option" data-color="11" style="background: #008000;" title="Dark Green"></div>
+                        <div class="color-option" data-color="12" style="background: #000080;" title="Navy Blue"></div>
+                        <div class="color-option" data-color="13" style="background: #ff8000;" title="Orange"></div>
+                        <div class="color-option" data-color="14" style="background: #800080;" title="Purple"></div>
+                        <div class="color-option" data-color="15" style="background: #ffc0cb;" title="Pink"></div>
+                        <div class="color-option" data-color="16" style="background: #a52a2a;" title="Brown"></div>
+                        <div class="color-option" data-color="17" style="background: #ffd700;" title="Gold"></div>
+                        <div class="color-option" data-color="18" style="background: #4b0082;" title="Indigo"></div>
+                        <div class="color-option" data-color="19" style="background: #008b8b;" title="Dark Cyan"></div>
+                    </div>
+                </div>
+
+                <!-- Time Selection -->
+                <div class="rental-section" id="time-section" style="display: none;">
+                    <h3>Rental Duration</h3>
+                    <div class="time-grid" id="time-options">
+                        <!-- Time options will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Payment Selection -->
+                <div class="rental-section" id="payment-section" style="display: none;">
+                    <h3>Payment Method</h3>
+                    <div class="payment-grid">
+                        <div class="payment-option" data-payment="cash">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Cash</span>
+                        </div>
+                        <div class="payment-option" data-payment="bank">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Bank</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rental Summary -->
+                <div class="rental-section" id="summary-section" style="display: none;">
+                    <div class="summary-card">
+                        <h3>Rental Summary</h3>
+                        <div class="summary-item">
+                            <span>Vehicle:</span>
+                            <span id="summary-vehicle">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Duration:</span>
+                            <span id="summary-time">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Payment:</span>
+                            <span id="summary-payment">-</span>
+                        </div>
+                        <div class="summary-item total">
+                            <span>Total:</span>
+                            <span id="summary-price">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="resetRental()">
+                        <i class="fas fa-undo"></i>
+                        Reset
+                    </button>
+                    <button class="btn btn-primary" id="rent-btn" onclick="confirmRental()" style="display: none;">
+                        <i class="fas fa-check"></i>
+                        Confirm Rental
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vehicle Confirmation Modal -->
+    <div id="vehicle-confirm-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Vehicle Selection</h3>
+                <button class="modal-close-btn" onclick="closeConfirmModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="selected-vehicle-info">
+                    <div class="selected-vehicle-image">
+                        <img id="confirm-vehicle-image" src="" alt="Vehicle">
+                    </div>
+                    <div class="selected-vehicle-details">
+                        <h4 id="confirm-vehicle-name">Vehicle Name</h4>
+                        <p>Do you want to spawn this vehicle?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">
+                    <i class="fas fa-times"></i>
+                    Decline
+                </button>
+                <button class="btn btn-primary" id="confirm-spawn-btn" onclick="confirmSpawn()">
+                    <i class="fas fa-check"></i>
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
+
