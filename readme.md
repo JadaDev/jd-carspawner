@@ -57,7 +57,7 @@ ensure jd-carspawner
 
 All important configuration lives in `config.lua`.
 
-- **Spawn vectors**: Job vehicle spawn locations and rental ped locations are defined in `config.lua` as vectors (or tables with `x`, `y`, `z`, and optionally `heading`). To change where vehicles spawn or where the rental NPC appears, open `config.lua` and look for the sections that define spawn locations — they contain vector entries you can edit to your map coordinates.
+- **Spawn vectors**: Job vehicle spawn locations and rental ped locations are defined in `config.lua` as vectors 3 or 4 (or tables with `x`, `y`, `z`, and optionally `heading`). To change where vehicles spawn or where the rental NPC appears, open `config.lua` and look for the sections that define spawn locations — they contain vector entries you can edit to your map coordinates.
 
 Example formats you may find in a config file (read the actual `config.lua` for exact names used):
 
