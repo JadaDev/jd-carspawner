@@ -101,7 +101,7 @@ If you need help or want changes made to the README itself, open an issue or pin
 
 ## License
 
-No license file is included in the repo. Add a license (for example MIT) if you want to allow reuse. Contact the repository owner if you're unsure.
+MIT
 
 ---
 
