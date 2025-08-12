@@ -1,4 +1,4 @@
-local alarmThreads = {} -- store active alarm loops
+local alarmThreads = {} -- store active alarm loops by netId
 
 
 
@@ -10,9 +10,9 @@ RegisterNetEvent("jd-carspawner:startRentalSiren", function(vehicleNetId)
     -- Always enable alarm system before starting
     SetVehicleAlarm(vehicle, true)
     -- Stop existing loop if any
-    if alarmThreads[vehicle] and alarmThreads[vehicle].active ~= nil then
-        alarmThreads[vehicle].active = false
-        alarmThreads[vehicle] = nil
+    if alarmThreads[vehicleNetId] and alarmThreads[vehicleNetId].active ~= nil then
+        alarmThreads[vehicleNetId].active = false
+        alarmThreads[vehicleNetId] = nil
     end
     local repeatAlarm = Config.SirenOptions.repeatAlarm
     local alarmDuration = Config.SirenOptions.alarmDuration or 15
@@ -29,8 +29,8 @@ RegisterNetEvent("jd-carspawner:startRentalSiren", function(vehicleNetId)
         end
     end
 
-    local control = { active = true }
-    alarmThreads[vehicle] = control
+    local control = { active = true, netId = vehicleNetId }
+    alarmThreads[vehicleNetId] = control
     Citizen.CreateThread(function()
         if repeatAlarm then
             while control.active and DoesEntityExist(vehicle) do
@@ -48,16 +48,49 @@ end)
 
 
 RegisterNetEvent("jd-carspawner:stopRentalSiren", function(vehicleNetId)
+    -- First ensure thread is stopped regardless of vehicle existence
+    if alarmThreads[vehicleNetId] then
+        alarmThreads[vehicleNetId].active = false
+        alarmThreads[vehicleNetId] = nil
+    end
+
     local vehicle = NetToVeh(vehicleNetId)
     if not DoesEntityExist(vehicle) then
         return
     end
-    SetVehicleAlarm(vehicle, false) -- disable alarm system
-    -- Stop the alarm thread if it exists
-    if alarmThreads[vehicle] and alarmThreads[vehicle].active ~= nil then
-        alarmThreads[vehicle].active = false
-        alarmThreads[vehicle] = nil
-    end
+
+    -- Completely stop and reset alarm system
+    Citizen.CreateThread(function()
+        local attempts = 0
+        while attempts < 5 and DoesEntityExist(vehicle) do
+            attempts = attempts + 1
+            
+            -- Reset all alarm states
+            SetVehicleAlarm(vehicle, false)
+            SetVehicleAlarmTimeLeft(vehicle, 0)
+            StartVehicleAlarm(vehicle) -- This actually stops any active alarm
+            SetVehicleAlarm(vehicle, false)
+            
+            -- Additional forced stop
+            if IsVehicleAlarmActivated(vehicle) then
+                SetVehicleAlarm(vehicle, false)
+                StartVehicleAlarm(vehicle)
+            end
+            
+            -- Check if alarm is really off
+            if not IsVehicleAlarmActivated(vehicle) then
+                break
+            end
+            
+            Citizen.Wait(200)
+        end
+        
+        -- Final cleanup if vehicle still exists
+        if DoesEntityExist(vehicle) then
+            SetVehicleAlarm(vehicle, false)
+            StartVehicleAlarm(vehicle)
+        end
+    end)
 end)
 -- Siren/Alarm threads for job vehicles
 RegisterNetEvent("jd-carspawner:startJobSiren", function(vehicleNetId)
@@ -68,9 +101,9 @@ RegisterNetEvent("jd-carspawner:startJobSiren", function(vehicleNetId)
     -- Always enable alarm system before starting
     SetVehicleAlarm(vehicle, true)
     -- Stop existing loop if any
-    if alarmThreads[vehicle] and alarmThreads[vehicle].active ~= nil then
-        alarmThreads[vehicle].active = false
-        alarmThreads[vehicle] = nil
+    if alarmThreads[vehicleNetId] and alarmThreads[vehicleNetId].active ~= nil then
+        alarmThreads[vehicleNetId].active = false
+        alarmThreads[vehicleNetId] = nil
     end
     local repeatAlarm = Config.JobSirenOptions.repeatAlarm
     local alarmDuration = Config.JobSirenOptions.alarmDuration or 15
@@ -87,8 +120,8 @@ RegisterNetEvent("jd-carspawner:startJobSiren", function(vehicleNetId)
         end
     end
 
-    local control = { active = true }
-    alarmThreads[vehicle] = control
+    local control = { active = true, netId = vehicleNetId }
+    alarmThreads[vehicleNetId] = control
     Citizen.CreateThread(function()
         if repeatAlarm then
             while control.active and DoesEntityExist(vehicle) do
@@ -104,15 +137,49 @@ RegisterNetEvent("jd-carspawner:startJobSiren", function(vehicleNetId)
 end)
 
 RegisterNetEvent("jd-carspawner:stopJobSiren", function(vehicleNetId)
+    -- First ensure thread is stopped regardless of vehicle existence
+    if alarmThreads[vehicleNetId] then
+        alarmThreads[vehicleNetId].active = false
+        alarmThreads[vehicleNetId] = nil
+    end
+
     local vehicle = NetToVeh(vehicleNetId)
     if not DoesEntityExist(vehicle) then
         return
     end
-    SetVehicleAlarm(vehicle, false)
-    if alarmThreads[vehicle] and alarmThreads[vehicle].active ~= nil then
-        alarmThreads[vehicle].active = false
-        alarmThreads[vehicle] = nil
-    end
+
+    -- Completely stop and reset alarm system
+    Citizen.CreateThread(function()
+        local attempts = 0
+        while attempts < 5 and DoesEntityExist(vehicle) do
+            attempts = attempts + 1
+            
+            -- Reset all alarm states
+            SetVehicleAlarm(vehicle, false)
+            SetVehicleAlarmTimeLeft(vehicle, 0)
+            StartVehicleAlarm(vehicle) -- This actually stops any active alarm
+            SetVehicleAlarm(vehicle, false)
+            
+            -- Additional forced stop
+            if IsVehicleAlarmActivated(vehicle) then
+                SetVehicleAlarm(vehicle, false)
+                StartVehicleAlarm(vehicle)
+            end
+            
+            -- Check if alarm is really off
+            if not IsVehicleAlarmActivated(vehicle) then
+                break
+            end
+            
+            Citizen.Wait(200)
+        end
+        
+        -- Final cleanup if vehicle still exists
+        if DoesEntityExist(vehicle) then
+            SetVehicleAlarm(vehicle, false)
+            StartVehicleAlarm(vehicle)
+        end
+    end)
 end)
 
 -- Siren/Alarm NUI callbacks for job vehicles
@@ -481,7 +548,8 @@ function openJobMenu(playerJob, jobConfig, spawnLocations, jobName)
         playerGrade = playerJob.grade,
         gradeNames = jobGradeNames,
         spawnCoords = spawnLocations or jobConfig.spawn_locations or {jobConfig.coords},
-        spawnHeading = jobConfig.heading
+        spawnHeading = jobConfig.heading,
+        config = Config
     }
 
     SetNuiFocus(true, true)
@@ -508,7 +576,8 @@ function openRentalMenu(spawnerData, spawnLocations)
             cash = PlayerData.money.cash or 0,
             bank = PlayerData.money.bank or 0
         },
-        showPlayerMoney = Config.UI.showPlayerMoney or false
+        showPlayerMoney = Config.UI.showPlayerMoney or false,
+        config = Config
     }
 
     SetNuiFocus(true, true)
@@ -579,7 +648,27 @@ RegisterNUICallback("spawnVehicle", function(data, cb)
             paymentType = data.paymentType
         })
     else
-        SpawnAndEnterVehicle(data.vehicle, coords, heading, nil, false, nil, nil, data.jobName)
+                -- Get extras from vehicle data
+                local extras = nil
+                local PlayerData = QBCore.Functions.GetPlayerData()
+                local playerJob = PlayerData.job
+                
+                if playerJob and data.jobConfig and data.jobConfig.vehicles then
+                    local jobConfig = data.jobConfig
+                    local maxGrade = playerJob.grade or 0
+                    for rank = 0, maxGrade do
+                        if jobConfig.vehicles[tostring(rank)] then
+                            for _, vehicle in ipairs(jobConfig.vehicles[tostring(rank)]) do
+                                if vehicle.model == data.vehicle then
+                                    extras = vehicle.extras
+                                    break
+                                end
+                            end
+                            if extras then break end
+                        end
+                    end
+                end
+                SpawnAndEnterVehicle(data.vehicle, coords, heading, nil, false, nil, nil, data.jobName, extras)
     end
     cb("ok")
 end)
@@ -590,7 +679,7 @@ RegisterNUICallback("removeVehicle", function(_, cb)
     cb("ok")
 end)
 
-function SpawnAndEnterVehicle(model, coords, heading, color, isRental, rentalTime, rentalDurationSeconds, jobName)
+function SpawnAndEnterVehicle(model, coords, heading, color, isRental, rentalTime, rentalDurationSeconds, jobName, extras)
     local ped = PlayerPedId()
     QBCore.Functions.SpawnVehicle(model, function(vehicle)
         SetEntityHeading(vehicle, heading)
@@ -606,6 +695,13 @@ function SpawnAndEnterVehicle(model, coords, heading, color, isRental, rentalTim
             plate = "SPAWNED"..math.random(100,999)
         end
         SetVehicleNumberPlateText(vehicle, plate)
+
+        -- Apply vehicle extras if defined
+        if extras then
+            for _, extraId in ipairs(extras) do
+                SetVehicleExtra(vehicle, extraId, false) -- false means enable the extra
+            end
+        end
         
         CreateThread(function()
             Wait(500)
@@ -619,34 +715,58 @@ function SpawnAndEnterVehicle(model, coords, heading, color, isRental, rentalTim
                 pcall(function() TriggerEvent("vehiclekeys:client:SetOwner", plate) end)
             end
             
-            if color and color ~= 0 then
-                local fivemColors = {
-                    [0] = 0,   -- Black
-                    [1] = 131, -- White
-                    [2] = 27,  -- Red
-                    [3] = 53,  -- Green  
-                    [4] = 64,  -- Blue
-                    [5] = 89,  -- Yellow
-                    [6] = 137, -- Magenta/Pink
-                    [7] = 140,  -- Cyan
-                    [8] = 4,  -- Silver
-                    [9] = 18,   -- Gray
-                    [10] = 34,  -- Maroon (Metallic Cabernet Red)
-                    [11] = 49,  -- Dark Green (Metallic Dark Green)
-                    [12] = 61,  -- Navy Blue (Metallic Midnight Blue)
-                    [13] = 38,  -- Orange (Metallic Orange)
-                    [14] = 71,  -- Purple (Metallic Purple Blue)
-                    [15] = 137, -- Pink (Metallic Vermilion Pink)
-                    [16] = 101, -- Brown (Metallic Biston Brown)
-                    [17] = 37,  -- Gold (Metallic Classic Gold)
-                    [18] = 142,  -- Indigo (Metallic Blue)
-                    [19] = 54   -- Dark Cyan (Metallic Gasoline Blue Green)
-                }
-                
-                local actualColor = fivemColors[color] or color
-                
-                SetVehicleColours(vehicle, actualColor, actualColor)
-                SetVehicleExtraColours(vehicle, actualColor, actualColor)
+                if color and color ~= 0 then
+                    -- Convert HEX color to RGB
+                    local hexColor
+                    if type(color) == "number" then
+                        -- Get HEX color from predefined palette based on index
+                        local hexColors = {
+                            [0] = "000000", -- Black
+                            [1] = "FFFFFF", -- White
+                            [2] = "FF0000", -- Red
+                            [3] = "00FF00", -- Green
+                            [4] = "0000FF", -- Blue
+                            [5] = "FFFF00", -- Yellow
+                            [6] = "FF00FF", -- Magenta
+                            [7] = "00FFFF", -- Cyan
+                            [8] = "C0C0C0", -- Silver
+                            [9] = "808080", -- Gray
+                            [10] = "800000", -- Maroon
+                            [11] = "008000", -- Dark Green
+                            [12] = "000080", -- Navy Blue
+                            [13] = "800080", -- Purple
+                            [14] = "008B8B", -- Dark Cyan
+                            [15] = "4B0082", -- Indigo
+                            [16] = "A52A2A", -- Brown
+                            [17] = "FF4500", -- Orange Red
+                            [18] = "FF8C00", -- Dark Orange
+                            [19] = "FF8000", -- Orange
+                            [20] = "FFD700", -- Gold
+                            [21] = "FF6347", -- Tomato
+                            [22] = "FF69B4", -- Hot Pink
+                            [23] = "FFC0CB", -- Pink
+                            [24] = "9370DB", -- Medium Purple
+                            [25] = "32CD32", -- Lime Green
+                            [26] = "7CFC00", -- Lawn Green
+                            [27] = "40E0D0", -- Turquoise
+                            [28] = "00BFFF", -- Deep Sky Blue
+                            [29] = "1E90FF"  -- Dodger Blue
+                        }
+                        hexColor = hexColors[color] or (color == 0 and "000000" or "FFFFFF")
+                    elseif type(color) == "string" then
+                        hexColor = color:gsub("#", "")
+                    end
+
+                    if hexColor then
+                        -- Convert HEX to RGB
+                        local r = tonumber(hexColor:sub(1, 2), 16)
+                        local g = tonumber(hexColor:sub(3, 4), 16)
+                        local b = tonumber(hexColor:sub(5, 6), 16)
+                        
+                        -- Apply colors
+                        SetVehicleCustomPrimaryColour(vehicle, r, g, b)
+                        SetVehicleCustomSecondaryColour(vehicle, r, g, b)
+                    end
                 
                 SetVehicleDirtLevel(vehicle, 0.0)
                 SetVehicleModKit(vehicle, 0)
@@ -797,7 +917,7 @@ function table.contains(tbl, val)
 end
 
 RegisterNetEvent("jd-carspawner:client:spawnRentalVehicle", function(data)
-    SpawnAndEnterVehicle(data.vehicle, data.coords, data.heading, data.color, true, data.rentalTime, data.rentalDurationSeconds, nil)
+    SpawnAndEnterVehicle(data.vehicle, data.coords, data.heading, data.color, true, data.rentalTime, data.rentalDurationSeconds, nil, data.extras)
 end)
 
 RegisterNetEvent("jd-carspawner:client:openMenu", function(data)
@@ -979,7 +1099,6 @@ RegisterNUICallback("locateRentalVehicle", function(data, cb)
                 
                 rentalWaypoints[netId] = blip
                 
-                QBCore.Functions.Notify("GPS route set to your rental vehicle", "success")
                 break
             end
         end
@@ -1075,8 +1194,7 @@ RegisterNUICallback("locateJobVehicle", function(data, cb)
                 SetBlipRouteColour(blip, Config.JobVehicleManagement.jobWaypointBlipColor)
                 
                 jobVehicleWaypoints[netId] = blip
-                
-                QBCore.Functions.Notify("GPS route set to your job vehicle", "success")
+
                 break
             end
         end
@@ -1211,6 +1329,78 @@ function CleanupRentalWaypoints()
         end
     end
 end
+
+-- Update waypoint positions periodically and reset route
+CreateThread(function()
+    while true do
+        Wait(Config.RentalManagement.gpsUpdateInterval or 3000)
+        
+        -- Update rental vehicle waypoints
+        for netId, blip in pairs(rentalWaypoints) do
+            if activeRentalVehicles[netId] and DoesEntityExist(activeRentalVehicles[netId].vehicle) then
+                local coords = GetEntityCoords(activeRentalVehicles[netId].vehicle)
+                SetBlipCoords(blip, coords.x, coords.y, coords.z)
+                SetBlipRoute(blip, true) -- Reset route tracing
+                SetBlipRouteColour(blip, Config.RentalManagement.waypointBlipColor)
+            end
+        end
+        
+        -- Update job vehicle waypoints
+        for netId, blip in pairs(jobVehicleWaypoints) do
+            if activeJobVehicles[netId] and DoesEntityExist(activeJobVehicles[netId].vehicle) then
+                local coords = GetEntityCoords(activeJobVehicles[netId].vehicle)
+                SetBlipCoords(blip, coords.x, coords.y, coords.z)
+                SetBlipRoute(blip, true) -- Reset route tracing
+                SetBlipRouteColour(blip, Config.JobVehicleManagement.jobWaypointBlipColor)
+            end
+        end
+    end
+end)
+
+-- Fix siren loop functionality
+RegisterNetEvent("jd-carspawner:startRentalSiren", function(vehicleNetId)
+    local vehicle = NetToVeh(vehicleNetId)
+    if not DoesEntityExist(vehicle) then
+        return
+    end
+    -- Always enable alarm system before starting
+    SetVehicleAlarm(vehicle, true)
+    -- Stop existing loop if any
+    if alarmThreads[vehicleNetId] and alarmThreads[vehicleNetId].active ~= nil then
+        alarmThreads[vehicleNetId].active = false
+        alarmThreads[vehicleNetId] = nil
+    end
+    local repeatAlarm = Config.SirenOptions.repeatAlarm
+    local alarmDuration = Config.SirenOptions.alarmDuration or 15
+    local alarmRepeatInterval = Config.SirenOptions.alarmRepeatInterval or 10
+
+    local function reliableStartAlarm()
+        for i = 1, 3 do
+            SetVehicleAlarm(vehicle, true)
+            StartVehicleAlarm(vehicle)
+            Citizen.Wait(100)
+            if IsVehicleAlarmActivated(vehicle) then
+                break
+            end
+        end
+    end
+
+    local control = { active = true, netId = vehicleNetId }
+    alarmThreads[vehicleNetId] = control
+    Citizen.CreateThread(function()
+        while control.active and DoesEntityExist(vehicle) do
+            reliableStartAlarm()
+            if repeatAlarm then
+                Citizen.Wait(alarmRepeatInterval * 1000)
+            else
+                Citizen.Wait(alarmDuration * 1000)
+                SetVehicleAlarm(vehicle, false)
+                break
+            end
+        end
+        alarmThreads[vehicleNetId] = nil
+    end)
+end)
 
 -- Cleanup expired rental vehicles periodically
 CreateThread(function()

@@ -50,8 +50,8 @@ Config.JobSpawners = {
         ped_heading = 179.62,
         vehicles = {
             [0] = { -- grade rank 0 = Recruit
-                {name = "Police Cruiser", model = "police", image = "https://docs.fivem.net/vehicles/police.webp"}, -- recruit vehicles
-                {name = "Police Motorcycle", model = "policeb", image = "https://docs.fivem.net/vehicles/policeb.webp"}
+                {name = "Police Cruiser", model = "police", image = "https://docs.fivem.net/vehicles/police.webp", extras = {1,2,3}}, -- recruit vehicles
+                {name = "Police Motorcycle", model = "policeb", image = "https://docs.fivem.net/vehicles/policeb.webp", extras = {1}}
             },
             [1] = { -- grade rank 1 = Officer
                 {name = "Stanier LE Cruiser", model = "police5", image = "https://docs.fivem.net/vehicles/police5.webp"}, -- officer vehicles
@@ -185,8 +185,8 @@ Config.RentalSpawner = {
     },
     ped_heading = 179.62,
     vehicles = {
-        { name = "Blista Compact", model = "blista", image = "https://docs.fivem.net/vehicles/blista.webp", base_price = 500 },
-        { name = "Asbo Compact", model = "asbo", image = "https://docs.fivem.net/vehicles/asbo.webp", base_price = 300 },
+        { name = "Blista Compact", model = "blista", image = "https://docs.fivem.net/vehicles/blista.webp", base_price = 500, extras = {1,2,3,4,5,6,7,8,9,10,11,12} },
+        { name = "Asbo Compact", model = "asbo", image = "https://docs.fivem.net/vehicles/asbo.webp", base_price = 300, extras = {1} },
         { name = "Club Compact", model = "club", image = "https://docs.fivem.net/vehicles/club.webp", base_price = 550 },
         { name = "Washington Sedan", model = "washington", image = "https://docs.fivem.net/vehicles/washington.webp", base_price = 800 },
         { name = "Carbonizzare Sports", model = "carbonizzare", image = "https://docs.fivem.net/vehicles/carbonizzare.webp", base_price = 2500 },
@@ -247,7 +247,6 @@ function GenerateJobPlate(jobName)
     return platePrefix .. numberString
 end
 
-Config.MaxJobVehicles = 1
 Config.RentalGarage = "rental_garage"
 Config.Locale = "en"
 
@@ -315,7 +314,8 @@ Config.RentalManagement = {
     waypointBlipSprite = 1, -- Blip sprite for rental vehicle waypoints
     waypointBlipColor = 5, -- Blip color for rental vehicle waypoints
     waypointBlipScale = 0.8, -- Blip scale for rental vehicle waypoints
-    menuKey = 166 -- F5 key to open rental management menu (set to 0 to disable)
+    menuKey = 166, -- F5 key to open rental management menu (set to 0 to disable)
+    gpsUpdateInterval = 3000 -- Interval in milliseconds for GPS updates (default: 30 seconds)
 }
 
 -- ===============================================
@@ -327,9 +327,9 @@ Config.JobVehicleManagement = {
     maxJobVehiclesPerPlayer = 1, -- Maximum number of job vehicles a player can have spawned at once
     jobWaypointBlipSprite = 56, -- Blip sprite for job vehicle waypoints (different from rental)
     jobWaypointBlipColor = 3, -- Blip color for job vehicle waypoints
-    jobWaypointBlipScale = 0.8 -- Blip scale for job vehicle waypoints
+    jobWaypointBlipScale = 0.8, -- Blip scale for job vehicle waypoints
+    gpsUpdateInterval = 3000 -- Interval in milliseconds for GPS updates (default: 30 seconds)
 }
 -- ===============================================
 -- END OF CONFIGURATION
 -- ===============================================
-

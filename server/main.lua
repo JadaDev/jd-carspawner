@@ -76,6 +76,13 @@ RegisterNetEvent("jd-carspawner:server:spawnVehicle", function(vehicleModel, spa
         SetVehicleNumberPlateText(veh, plate)
         Entity(veh).state.fuel = 100
 
+        -- Apply vehicle extras if defined
+        if data and data.extras then
+            for _, extraId in ipairs(data.extras) do
+                SetVehicleExtra(veh, extraId, false) -- false means enable the extra
+            end
+        end
+
         TriggerClientEvent("jd-carspawner:client:enterVehicle", src, veh, plate)
         TriggerClientEvent("QBCore:Notify", src, "Vehicle spawned successfully!", "success")
     else
@@ -118,6 +125,11 @@ RegisterNetEvent("jd-carspawner:server:spawnRentalVehicle", function(data)
     -- Generate time text based on actual duration
     local timeText = ""
     local durationSeconds = data.rentalDurationSeconds or 3600
+
+    -- Log extras if present (for debugging)
+    if data.extras then
+        print("Spawning rental vehicle with extras:", json.encode(data.extras))
+    end
     
     if durationSeconds < 60 then
         timeText = string.format("%d seconds (DEBUG)", durationSeconds)

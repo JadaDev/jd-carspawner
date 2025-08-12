@@ -1,3 +1,19 @@
+// Default configuration to prevent undefined errors
+let Config = {
+    SirenOptions: {
+        enableSiren: true,
+        repeatAlarm: true,
+        alarmDuration: 15,
+        alarmRepeatInterval: 7
+    },
+    JobSirenOptions: {
+        enableSiren: true,
+        repeatAlarm: true,
+        alarmDuration: 15,
+        alarmRepeatInterval: 7
+    }
+};
+
 // Siren control for rental vehicles using vehicleNetId
 // Global job vehicles array for siren controls
 let currentJobVehicles = [];
@@ -120,10 +136,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function showVehicleConfirm(vehicleData) {
+    if (!vehicleData.name) {
+        console.error('Vehicle data missing name property:', vehicleData);
+        return;
+    }
     selectedVehicleData = vehicleData;
-    const displayName = vehicleData.name || getVehicleDetails(vehicleData.model).displayName;
     const imageSrc = vehicleData.image || `img/${vehicleData.model.toLowerCase()}.webp`;
-    showVehicleConfirmModal(vehicleData.model, imageSrc, vehicleData.base_price, displayName);
+    showVehicleConfirmModal(vehicleData.model, imageSrc, vehicleData.base_price, vehicleData.name);
 }
 
 function showVehicleConfirmModal(vehicleName, imageSrc, price, displayName) {
@@ -193,6 +212,10 @@ function openMenu(menuData) {
     
     if (menuData.showPlayerMoney !== undefined) {
         showPlayerMoney = menuData.showPlayerMoney;
+    }
+
+    if (menuData.config) {
+        Config = menuData.config;
     }
     
     document.getElementById('app').classList.remove('hidden');
@@ -273,7 +296,10 @@ function showJobMenu(menuData) {
         vehicleCard.className = 'vehicle-card';
         vehicleCard.onclick = () => showVehicleConfirm(vehicleData);
 
-        const displayName = vehicleData.name || getVehicleDetails(vehicleData.model).displayName;
+        if (!vehicleData.name) {
+            console.error('Vehicle data missing name property:', vehicleData);
+            return;
+        }
         const imageSrc = vehicleData.image || `img/${vehicleData.model.toLowerCase()}.webp`;
 
         vehicleCard.innerHTML = `
@@ -281,7 +307,7 @@ function showJobMenu(menuData) {
                 <img src="${imageSrc}" alt="${vehicleData.model}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-car\\'></i><br>No Image'">
             </div>
             <div class="vehicle-info">
-                <div class="vehicle-name">${displayName}</div>
+                <div class="vehicle-name">${vehicleData.name}</div>
                 <div class="vehicle-grade">Grade: ${vehicleData.grade}</div>
             </div>
         `;
@@ -313,7 +339,10 @@ function showRentalMenu(menuData) {
         vehicleCard.className = 'vehicle-card';
         vehicleCard.onclick = () => selectRentalVehicle(vehicle);
 
-        const displayName = vehicle.name || getVehicleDetails(vehicle.model).displayName;
+        if (!vehicle.name) {
+            console.error('Vehicle data missing name property:', vehicle);
+            return;
+        }
         const imageSrc = vehicle.image || `img/${vehicle.model.toLowerCase()}.webp`;
 
         vehicleCard.innerHTML = `
@@ -321,7 +350,7 @@ function showRentalMenu(menuData) {
                 <img src="${imageSrc}" alt="${vehicle.model}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-car\\'></i><br>No Image'">
             </div>
             <div class="vehicle-info">
-                <div class="vehicle-name">${displayName}</div>
+                <div class="vehicle-name">${vehicle.name}</div>
                 <div class="vehicle-price">Base: $${vehicle.base_price}</div>
             </div>
         `;
@@ -622,7 +651,7 @@ document.addEventListener('keydown', function(event) {
         event.preventDefault();
         // Check for rental management overlay first
         if (rentalManagementOverlay) {
-            closeRentalMenu();
+            closeRentalMenu(true); // Force cleanup when closing with ESC
         } else if (!document.getElementById('vehicle-confirm-modal').classList.contains('hidden')) {
             closeConfirmModal();
         } else {
@@ -631,45 +660,6 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
-/**
- * Provides fallback vehicle display names and specifications
- * This function is needed because not all vehicles in the config may have
- * a 'name' property defined. It serves as a fallback to ensure consistent
- * display names and provides additional vehicle details.
- * @param {string} vehicleName - The vehicle model name
- * @returns {object} Vehicle details including displayName, type, class, and seats
- */
-function getVehicleDetails(vehicleName) {
-    const vehicleSpecs = {
-        // Police
-        'police': { displayName: 'Police Cruiser', type: 'Emergency', class: 'Emergency', seats: 4 },
-        'police3': { displayName: 'Advanced Police Cruiser', type: 'Emergency', class: 'Emergency', seats: 4 },
-        'police4': { displayName: 'Unmarked Cruiser', type: 'Emergency', class: 'Emergency', seats: 4 },
-        'policeb': { displayName: 'Police Motorcycle', type: 'Emergency', class: 'Motorcycles', seats: 2 },
-        'policeold2': { displayName: 'Police Roadcruiser', type: 'Emergency', class: 'Emergency', seats: 4 },
-        'fbi': { displayName: 'F.B.I Vehicle', type: 'Emergency', class: 'Emergency', seats: 4 },
-        
-        // Emergency
-        'ambulance': { displayName: 'Emergency Ambulance', type: 'Emergency', class: 'Emergency', seats: 4 },
-        
-        // Rental
-        'faggio': { displayName: 'Faggio Scooter', type: 'Motorcycle', class: 'Motorcycles', seats: 2 },
-        'sultan': { displayName: 'Sultan Sports Car', type: 'Sports', class: 'Sports', seats: 4 },
-        'blista': { displayName: 'Blista Compact', type: 'Compact', class: 'Compacts', seats: 4 },
-        'zentorno': { displayName: 'Zentorno Supercar', type: 'Sports', class: 'Super', seats: 2 },
-        
-        // Available images
-        'adder': { displayName: 'Adder', type: 'Sports', class: 'Super', seats: 2 },
-        'bati': { displayName: 'Bati 801', type: 'Motorcycle', class: 'Motorcycles', seats: 2 },
-        'cog55': { displayName: 'Cognoscenti 55', type: 'Sedan', class: 'Sedans', seats: 4 },
-        'cognoscenti': { displayName: 'Cognoscenti', type: 'Sedan', class: 'Sedans', seats: 4 },
-        'glendale': { displayName: 'Glendale', type: 'Sedan', class: 'Sedans', seats: 4 },
-        'policet': { displayName: 'Police Transport', type: 'Emergency', class: 'Emergency', seats: 8 }
-    };
-
-    const defaultSpecs = { displayName: vehicleName.charAt(0).toUpperCase() + vehicleName.slice(1), type: 'Vehicle', class: 'Unknown', seats: 4 };
-    return vehicleSpecs[vehicleName.toLowerCase()] || defaultSpecs;
-}
 
 let countdownIframe = null;
 let isCountdownVisible = false;
@@ -742,6 +732,35 @@ function hideCountdownIframe() {
     }
 }
 
+// Clean up all GPS and siren states when menu closes
+function cleanupAllVehicleStates() {
+    // Clean up rental vehicle states
+    Object.keys(rentalGpsIntervals).forEach(index => {
+        clearInterval(rentalGpsIntervals[index]);
+        delete rentalGpsIntervals[index];
+    });
+    
+    Object.keys(rentalSirenStates).forEach(index => {
+        if (rentalSirenStates[index]) {
+            stopSiren(index);
+        }
+        delete rentalSirenStates[index];
+    });
+    
+    // Clean up job vehicle states
+    Object.keys(jobGpsIntervals).forEach(index => {
+        clearInterval(jobGpsIntervals[index]);
+        delete jobGpsIntervals[index];
+    });
+    
+    Object.keys(jobSirenStates).forEach(index => {
+        if (jobSirenStates[index]) {
+            stopJobSiren(index);
+        }
+        delete jobSirenStates[index];
+    });
+}
+
 let rentalManagementOverlay = null;
 let rentalUpdateInterval = null;
 
@@ -757,6 +776,25 @@ function showRentalManagementMenu(data) {
     // Update currentRentals and currentJobVehicles with the fresh data
     currentRentals = [...rentals];
     currentJobVehicles = [...jobVehicles];
+    
+    // Initialize siren states if not already set
+    currentRentals.forEach((rental, idx) => {
+        rentalSirenStates[idx] = rentalSirenStates[idx] || false;
+    });
+    currentJobVehicles.forEach((jobVehicle, idx) => {
+        jobSirenStates[idx] = jobSirenStates[idx] || false;
+    });
+
+    // Update GPS and Siren active states for rentals
+    currentRentals.forEach((rental, idx) => {
+        rental.gpsActive = !!rentalGpsIntervals[idx];
+        rental.sirenActive = !!rental.sirenActive;
+    });
+    // Update GPS and Siren active states for job vehicles
+    currentJobVehicles.forEach((jobVehicle, idx) => {
+        jobVehicle.gpsActive = !!jobGpsIntervals[idx];
+        jobVehicle.sirenActive = !!jobVehicle.sirenActive;
+    });
     
     if (rentalManagementOverlay) {
         document.body.removeChild(rentalManagementOverlay);
@@ -797,14 +835,12 @@ function showRentalManagementMenu(data) {
                         <p>Location: ${getLocationName(rental.coords)}</p>
                     </div>
                     <div class="rental-actions">
-                        <button onclick="locateVehicle(${originalIndex})" class="locate-btn">🗺️ GPS Route</button>
-                        <button onclick="hideWaypoint(${originalIndex})" class="hide-btn">🚫 Hide GPS</button>
-                        <button onclick="startSiren(${originalIndex})" class="siren-btn start-siren-btn">
-                            <i class='fas fa-bullhorn'></i> Start Siren
-                        </button>
-                        <button onclick="stopSiren(${originalIndex})" class="siren-btn stop-siren-btn">
-                            <i class='fas fa-bullhorn'></i> Stop Siren
-                        </button>
+                    <button onclick="window.handleGpsStart(${originalIndex})" class="locate-btn" id="gps-start-${originalIndex}">🗺️ GPS Route</button>
+                    <button onclick="window.handleGpsStop(${originalIndex})" class="hide-btn" id="gps-stop-${originalIndex}" style="display:none;">🚫 Hide GPS</button>
+                    ${Config.SirenOptions.enableSiren ? `
+                    <button onclick="window.handleSirenStart(${originalIndex})" class="siren-btn start-siren-btn" id="siren-start-${originalIndex}"><i class='fas fa-bullhorn'></i> Start Siren</button>
+                    <button onclick="window.handleSirenStop(${originalIndex})" class="siren-btn stop-siren-btn" id="siren-stop-${originalIndex}" style="display:none;"><i class='fas fa-bullhorn'></i> Stop Siren</button>
+                    ` : ''}
                         <button onclick="returnVehicle(${originalIndex})" class="return-btn">🔄 Return</button>
                     </div>
                 </div>
@@ -821,10 +857,12 @@ function showRentalManagementMenu(data) {
                     <p>Location: ${getLocationName(jobVehicle.coords)}</p>
                 </div>
                 <div class="rental-actions">
-                    <button onclick="locateJobVehicle(${index})" class="locate-btn">🗺️ GPS Route</button>
-                    <button onclick="hideJobVehicleWaypoint(${index})" class="hide-btn">🚫 Hide GPS</button>
-                    <button onclick="startJobSiren(${index})" class="siren-btn start-job-siren-btn"><i class='fas fa-bullhorn'></i> Start Siren</button>
-                    <button onclick="stopJobSiren(${index})" class="siren-btn stop-job-siren-btn"><i class='fas fa-bullhorn'></i> Stop Siren</button>
+                    <button onclick="window.handleJobGpsStart(${index})" class="locate-btn" id="job-gps-start-${index}">🗺️ GPS Route</button>
+                    <button onclick="window.handleJobGpsStop(${index})" class="hide-btn" id="job-gps-stop-${index}" style="display:none;">🚫 Hide GPS</button>
+                    ${Config.JobSirenOptions.enableSiren ? `
+                    <button onclick="window.handleJobSirenStart(${index})" class="siren-btn start-job-siren-btn" id="job-siren-start-${index}"><i class='fas fa-bullhorn'></i> Start Siren</button>
+                    <button onclick="window.handleJobSirenStop(${index})" class="siren-btn stop-job-siren-btn" id="job-siren-stop-${index}" style="display:none;"><i class='fas fa-bullhorn'></i> Stop Siren</button>
+                    ` : ''}
                     <button onclick="storeJobVehicle(${index})" class="store-btn">🏪 Store Vehicle</button>
                 </div>
             </div>
@@ -853,7 +891,7 @@ function showRentalManagementMenu(data) {
         <div class="rental-management-container">
             <div class="rental-header">
                 <h2>🚗 Vehicle Management</h2>
-                <button onclick="closeRentalMenu()" class="close-btn">✕</button>
+                <button onclick="closeRentalMenu(false)" class="close-btn">✕</button>
             </div>
             <div class="rental-content">
                 ${contentHtml}
@@ -862,8 +900,67 @@ function showRentalManagementMenu(data) {
     `;
     
     document.body.appendChild(rentalManagementOverlay);
-    
+
     startRentalTimerUpdates();
+
+    // Attach initial button visibility logic for all rentals and job vehicles
+    setTimeout(() => {
+        if (currentRentals) {
+            currentRentals.forEach((rental, idx) => {
+                // GPS: If rental.gpsActive is true, show stop, else show start
+                window.toggleGpsButtons(idx, rental.gpsActive === true);
+                // Siren: Use our persistent siren state
+                window.toggleSirenButtons(idx, rentalSirenStates[idx] === true);
+            });
+        }
+        if (currentJobVehicles) {
+            currentJobVehicles.forEach((jobVehicle, idx) => {
+                // GPS: If jobVehicle.gpsActive is true, show stop, else show start
+                window.toggleJobGpsButtons(idx, jobVehicle.gpsActive === true);
+                // Siren: Use our persistent siren state
+                window.toggleJobSirenButtons(idx, jobSirenStates[idx] === true);
+            });
+        }
+    }, 50);
+// Toggle GPS buttons for rental vehicles
+window.toggleGpsButtons = function(index, isActive) {
+    const startBtn = document.getElementById(`gps-start-${index}`);
+    const stopBtn = document.getElementById(`gps-stop-${index}`);
+    if (startBtn && stopBtn) {
+        startBtn.style.display = isActive ? 'none' : '';
+        stopBtn.style.display = isActive ? '' : 'none';
+    }
+}
+
+// Toggle Siren buttons for rental vehicles
+window.toggleSirenButtons = function(index, isActive) {
+    const startBtn = document.getElementById(`siren-start-${index}`);
+    const stopBtn = document.getElementById(`siren-stop-${index}`);
+    if (startBtn && stopBtn) {
+        startBtn.style.display = isActive ? 'none' : '';
+        stopBtn.style.display = isActive ? '' : 'none';
+    }
+}
+
+// Toggle GPS buttons for job vehicles
+window.toggleJobGpsButtons = function(index, isActive) {
+    const startBtn = document.getElementById(`job-gps-start-${index}`);
+    const stopBtn = document.getElementById(`job-gps-stop-${index}`);
+    if (startBtn && stopBtn) {
+        startBtn.style.display = isActive ? 'none' : '';
+        stopBtn.style.display = isActive ? '' : 'none';
+    }
+}
+
+// Toggle Siren buttons for job vehicles
+window.toggleJobSirenButtons = function(index, isActive) {
+    const startBtn = document.getElementById(`job-siren-start-${index}`);
+    const stopBtn = document.getElementById(`job-siren-stop-${index}`);
+    if (startBtn && stopBtn) {
+        startBtn.style.display = isActive ? 'none' : '';
+        stopBtn.style.display = isActive ? '' : 'none';
+    }
+}
 }
 
 function startRentalTimerUpdates() {
@@ -1008,7 +1105,18 @@ function getLocationName(coords) {
     }
 }
 
+// GPS update intervals and siren states for rental and job vehicles
+let rentalGpsIntervals = {};
+let jobGpsIntervals = {};
+let rentalSirenStates = {};
+let jobSirenStates = {};
+
 function locateVehicle(index) {
+    // Clear any previous interval for this rental vehicle
+    if (rentalGpsIntervals[index]) {
+        clearInterval(rentalGpsIntervals[index]);
+    }
+    // Immediately set GPS route
     fetch(`https://jd-carspawner/locateRentalVehicle`, {
         method: 'POST',
         headers: {
@@ -1016,9 +1124,24 @@ function locateVehicle(index) {
         },
         body: JSON.stringify({ rentalIndex: index })
     });
+    // Set interval to update GPS every 30 seconds
+    rentalGpsIntervals[index] = setInterval(() => {
+        fetch(`https://jd-carspawner/locateRentalVehicle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ rentalIndex: index })
+        });
+    }, 30000);
 }
 
 function hideWaypoint(index) {
+    // Stop GPS updates for this rental vehicle
+    if (rentalGpsIntervals[index]) {
+        clearInterval(rentalGpsIntervals[index]);
+        delete rentalGpsIntervals[index];
+    }
     fetch(`https://jd-carspawner/hideRentalWaypoint`, {
         method: 'POST',
         headers: {
@@ -1029,6 +1152,16 @@ function hideWaypoint(index) {
 }
 
 function returnVehicle(index) {
+    // Stop GPS updates for this rental vehicle
+    if (rentalGpsIntervals[index]) {
+        clearInterval(rentalGpsIntervals[index]);
+        delete rentalGpsIntervals[index];
+    }
+    // Stop siren if active
+    if (rentalSirenStates[index]) {
+        stopSiren(index);
+        delete rentalSirenStates[index];
+    }
     fetch(`https://jd-carspawner/returnRentalVehicle`, {
         method: 'POST',
         headers: {
@@ -1038,7 +1171,7 @@ function returnVehicle(index) {
     });
 }
 
-function closeRentalMenu() {
+function closeRentalMenu(forceCleanup = false) {
     if (rentalManagementOverlay) {
         document.body.removeChild(rentalManagementOverlay);
         rentalManagementOverlay = null;
@@ -1049,17 +1182,68 @@ function closeRentalMenu() {
         rentalUpdateInterval = null;
     }
     
+    // Only cleanup states if force closing (like with ESC key)
+    if (forceCleanup) {
+        cleanupAllVehicleStates();
+    }
+    
     fetch(`https://jd-carspawner/closeRentalMenu`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({ forceCleanup: forceCleanup })
     });
+}
+
+// Rental GPS button handlers
+window.handleGpsStart = function(index) {
+    toggleGpsButtons(index, true);
+    locateVehicle(index);
+}
+window.handleGpsStop = function(index) {
+    toggleGpsButtons(index, false);
+    hideWaypoint(index);
+}
+// Rental Siren button handlers
+window.handleSirenStart = function(index) {
+    rentalSirenStates[index] = true;
+    toggleSirenButtons(index, true);
+    startSiren(index);
+}
+window.handleSirenStop = function(index) {
+    rentalSirenStates[index] = false;
+    toggleSirenButtons(index, false);
+    stopSiren(index);
+}
+// Job GPS button handlers
+window.handleJobGpsStart = function(index) {
+    toggleJobGpsButtons(index, true);
+    locateJobVehicle(index);
+}
+window.handleJobGpsStop = function(index) {
+    toggleJobGpsButtons(index, false);
+    hideJobVehicleWaypoint(index);
+}
+// Job Siren button handlers
+window.handleJobSirenStart = function(index) {
+    jobSirenStates[index] = true;
+    toggleJobSirenButtons(index, true);
+    startJobSiren(index);
+}
+window.handleJobSirenStop = function(index) {
+    jobSirenStates[index] = false;
+    toggleJobSirenButtons(index, false);
+    stopJobSiren(index);
 }
 
 
 function locateJobVehicle(index) {
+    // Clear any previous interval for this job vehicle
+    if (jobGpsIntervals[index]) {
+        clearInterval(jobGpsIntervals[index]);
+    }
+    // Immediately set GPS route
     fetch(`https://jd-carspawner/locateJobVehicle`, {
         method: 'POST',
         headers: {
@@ -1067,9 +1251,24 @@ function locateJobVehicle(index) {
         },
         body: JSON.stringify({ jobVehicleIndex: index })
     });
+    // Set interval to update GPS every 30 seconds
+    jobGpsIntervals[index] = setInterval(() => {
+        fetch(`https://jd-carspawner/locateJobVehicle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ jobVehicleIndex: index })
+        });
+    }, 30000);
 }
 
 function hideJobVehicleWaypoint(index) {
+    // Stop GPS updates for this job vehicle
+    if (jobGpsIntervals[index]) {
+        clearInterval(jobGpsIntervals[index]);
+        delete jobGpsIntervals[index];
+    }
     fetch(`https://jd-carspawner/hideJobVehicleWaypoint`, {
         method: 'POST',
         headers: {
@@ -1080,6 +1279,16 @@ function hideJobVehicleWaypoint(index) {
 }
 
 function storeJobVehicle(index) {
+    // Stop GPS updates for this job vehicle
+    if (jobGpsIntervals[index]) {
+        clearInterval(jobGpsIntervals[index]);
+        delete jobGpsIntervals[index];
+    }
+    // Stop siren if active
+    if (jobSirenStates[index]) {
+        stopJobSiren(index);
+        delete jobSirenStates[index];
+    }
     fetch(`https://jd-carspawner/storeJobVehicle`, {
         method: 'POST',
         headers: {
