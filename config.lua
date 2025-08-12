@@ -50,26 +50,26 @@ Config.JobSpawners = {
         ped_heading = 179.62,
         vehicles = {
             [0] = { -- grade rank 0 = Recruit
-                {name = "Police Cruiser", model = "police", image = "https://docs.fivem.net/vehicles/police.webp", extras = {1,2,3}}, -- recruit vehicles
-                {name = "Police Motorcycle", model = "policeb", image = "https://docs.fivem.net/vehicles/policeb.webp", extras = {1}}
+                {name = "Police Cruiser", model = "police", image = "https://docs.fivem.net/vehicles/police.webp", extras = {}}, -- recruit vehicles
+                {name = "Police Motorcycle", model = "policeb", image = "https://docs.fivem.net/vehicles/policeb.webp", extras = {}}
             },
             [1] = { -- grade rank 1 = Officer
-                {name = "Stanier LE Cruiser", model = "police5", image = "https://docs.fivem.net/vehicles/police5.webp"}, -- officer vehicles
-                {name = "Park Ranger", model = "pranger", image = "https://docs.fivem.net/vehicles/pranger.webp"},
-                {name = "Police Bus", model = "pbus", image = "https://docs.fivem.net/vehicles/pbus.webp"}
+                {name = "Stanier LE Cruiser", model = "police5", image = "https://docs.fivem.net/vehicles/police5.webp", extras = {}}, -- officer vehicles
+                {name = "Park Ranger", model = "pranger", image = "https://docs.fivem.net/vehicles/pranger.webp", extras = {}},
+                {name = "Police Bus", model = "pbus", image = "https://docs.fivem.net/vehicles/pbus.webp", extras = {}}
             },
             [2] = { -- grade rank 2 = Sergeant
-                {name = "Police Cruiser 2", model = "police2", image = "https://docs.fivem.net/vehicles/police2.webp"}, -- sergeant vehicles
-                {name = "Advanced Police Cruiser", model = "police3", image = "https://docs.fivem.net/vehicles/police3.webp"}
+                {name = "Police Cruiser 2", model = "police2", image = "https://docs.fivem.net/vehicles/police2.webp", extras = {}}, -- sergeant vehicles
+                {name = "Advanced Police Cruiser", model = "police3", image = "https://docs.fivem.net/vehicles/police3.webp", extras = {}}
             },
             [3] = { -- grade rank 3 = Detective
-                {name = "F.B.I Vehicle", model = "fbi", image = "https://docs.fivem.net/vehicles/fbi.webp"} -- detective vehicles
+                {name = "F.B.I Vehicle", model = "fbi", image = "https://docs.fivem.net/vehicles/fbi.webp", extras = {}} -- detective vehicles
             },
             [4] = { -- grade rank 4 = Commander
-                {name = "Unmarked Cruiser", model = "police4", image = "https://docs.fivem.net/vehicles/police4.webp"}, -- commander vehicles
-                {name = "Sheriff SUV", model = "sheriff2", image = "https://docs.fivem.net/vehicles/sheriff2.webp"},
-                {name = "Police Riot", model = "riot", image = "https://docs.fivem.net/vehicles/riot.webp"},
-                {name = "Sheriff Cruiser", model = "sheriff", image = "https://docs.fivem.net/vehicles/sheriff.webp"}
+                {name = "Unmarked Cruiser", model = "police4", image = "https://docs.fivem.net/vehicles/police4.webp", extras = {}}, -- commander vehicles
+                {name = "Sheriff SUV", model = "sheriff2", image = "https://docs.fivem.net/vehicles/sheriff2.webp", extras = {}},
+                {name = "Police Riot", model = "riot", image = "https://docs.fivem.net/vehicles/riot.webp", extras = {}},
+                {name = "Sheriff Cruiser", model = "sheriff", image = "https://docs.fivem.net/vehicles/sheriff.webp", extras = {}}
             },
         }
     },
@@ -94,10 +94,10 @@ Config.JobSpawners = {
         ped_heading = 179.62,
         vehicles = {
             [0] = {
-                {name = "Emergency Ambulance", model = "ambulance", image = "https://docs.fivem.net/vehicles/ambulance.webp"}
+                {name = "Emergency Ambulance", model = "ambulance", image = "https://docs.fivem.net/vehicles/ambulance.webp", extras = {}}
             },
             [1] = {
-                {name = "Emergency Ambulance", model = "lguard", image = "https://docs.fivem.net/vehicles/lguard.webp"}
+                {name = "Emergency Ambulance", model = "lguard", image = "https://docs.fivem.net/vehicles/lguard.webp", extras = {}}
             }
         }
     }
@@ -185,14 +185,14 @@ Config.RentalSpawner = {
     },
     ped_heading = 179.62,
     vehicles = {
-        { name = "Blista Compact", model = "blista", image = "https://docs.fivem.net/vehicles/blista.webp", base_price = 500, extras = {1,2,3,4,5,6,7,8,9,10,11,12} },
-        { name = "Asbo Compact", model = "asbo", image = "https://docs.fivem.net/vehicles/asbo.webp", base_price = 300, extras = {1} },
-        { name = "Club Compact", model = "club", image = "https://docs.fivem.net/vehicles/club.webp", base_price = 550 },
-        { name = "Washington Sedan", model = "washington", image = "https://docs.fivem.net/vehicles/washington.webp", base_price = 800 },
-        { name = "Carbonizzare Sports", model = "carbonizzare", image = "https://docs.fivem.net/vehicles/carbonizzare.webp", base_price = 2500 },
-        { name = "Faggio Scooter", model = "faggio", image = "https://docs.fivem.net/vehicles/faggio.webp", base_price = 100 },
-        { name = "Faggio (Alt)", model = "faggio2", image = "https://docs.fivem.net/vehicles/faggio2.webp", base_price = 150 },
-        { name = "Nemesis Bike", model = "nemesis", image = "https://docs.fivem.net/vehicles/nemesis.webp", base_price = 2500 }
+        { name = "Blista Compact", model = "blista", image = "https://docs.fivem.net/vehicles/blista.webp", base_price = 500, extras = {} },
+        { name = "Asbo Compact", model = "asbo", image = "https://docs.fivem.net/vehicles/asbo.webp", base_price = 300, extras = {} },
+        { name = "Club Compact", model = "club", image = "https://docs.fivem.net/vehicles/club.webp", base_price = 550, extras = {} },
+        { name = "Washington Sedan", model = "washington", image = "https://docs.fivem.net/vehicles/washington.webp", base_price = 800, extras = {} },
+        { name = "Carbonizzare Sports", model = "carbonizzare", image = "https://docs.fivem.net/vehicles/carbonizzare.webp", base_price = 2500, extras = {} },
+        { name = "Faggio Scooter", model = "faggio", image = "https://docs.fivem.net/vehicles/faggio.webp", base_price = 100, extras = {1,2,3,4,5,6,7,8,9,10,11,12} },
+        { name = "Faggio (Alt)", model = "faggio2", image = "https://docs.fivem.net/vehicles/faggio2.webp", base_price = 150, extras = {} },
+        { name = "Nemesis Bike", model = "nemesis", image = "https://docs.fivem.net/vehicles/nemesis.webp", base_price = 2500, extras = {} }
     },
     payment_options = {"cash", "bank"}
 }
@@ -277,6 +277,29 @@ Config.GradeNames = { -- This table defines the names for different job grades
     }
 }
 
+
+Config.Colors = {
+    { name = "Black", value = 0, hex = "#000000" },
+    { name = "White", value = 111, hex = "#ffffff" },
+    { name = "Red", value = 39, hex = "#ff0000" },
+    { name = "Dark Red", value = 40, hex = "#8b0000" },
+    { name = "Orange", value = 41, hex = "#ff8c00" },
+    { name = "Bright Orange", value = 138, hex = "#ffa500" },
+    { name = "Yellow", value = 42, hex = "#ffff00" },
+    { name = "Race Yellow", value = 89, hex = "#ffd700" },
+    { name = "Lime Green", value = 55, hex = "#32cd32" },
+    { name = "Green", value = 139, hex = "#008000" },
+    { name = "Blue", value = 83, hex = "#1e90ff" },
+    { name = "Midnight Blue", value = 84, hex = "#00008b" },
+    { name = "Bright Purple", value = 145, hex = "#9370db" },
+    { name = "Schafter Purple", value = 148, hex = "#800080" },
+    { name = "Midnight Purple", value = 149, hex = "#4b0082" },
+    { name = "Hot Pink", value = 135, hex = "#ff69b4" },
+    { name = "Salmon Pink", value = 136, hex = "#ffa07a" },
+    { name = "Wine Red", value = 143, hex = "#800000" },
+    { name = "Silver", value = 4, hex = "#c0c0c0" },
+    { name = "Bronze", value = 90, hex = "#cd7f32" }
+}
 
 Config.UI = {
     theme = "darkblue",

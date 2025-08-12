@@ -122,7 +122,7 @@ window.stopJobSiren = stopJobSiren;
 let currentMenuData = null;
 let selectedVehicle = null;
 let selectedVehicleData = null;
-let selectedColor = 0;
+let selectedColor = null;
 let selectedTime = null;
 let selectedPayment = null;
 let rentalFees = {};
@@ -371,7 +371,9 @@ function showRentalMenu(menuData) {
         }
     });
 
-    setupColorOptions();
+    // Use default colors if none provided
+    const colors = menuData.colors;
+    setupColorOptions(colors);
     setupPaymentOptions();
 }
 
@@ -387,19 +389,37 @@ function selectRentalVehicle(vehicle) {
     updateSummary();
 }
 
-function setupColorOptions() {
-    document.querySelectorAll('.color-option').forEach(option => {
-        option.onclick = () => selectColor(option.dataset.color);
+function setupColorOptions(colors) {
+    const colorGrid = document.getElementById('color-options');
+    colorGrid.innerHTML = '';
+    
+    if (!colors || !Array.isArray(colors)) {
+        console.warn('No colors provided for vehicle selection');
+        return;
+    }
+
+    colors.forEach(color => {
+        if (color && color.hex && color.name) {
+            const colorOption = document.createElement('div');
+            colorOption.className = 'color-option';
+            colorOption.style.background = color.hex;
+            colorOption.title = color.name;
+            colorOption.dataset.color = JSON.stringify(color);
+            colorOption.onclick = () => selectColor(color);
+            colorGrid.appendChild(colorOption);
+        } else {
+            console.warn('Invalid color data:', color);
+        }
     });
 }
 
-function selectColor(colorId) {
-    selectedColor = parseInt(colorId);
+function selectColor(color) {
+    selectedColor = color;
 
     document.querySelectorAll('.color-option').forEach(option => {
         option.classList.remove('selected');
     });
-    document.querySelector(`[data-color="${colorId}"]`).classList.add('selected');
+    event.target.classList.add('selected');
 
     document.getElementById('time-section').style.display = 'block';
     updateSummary();
@@ -532,7 +552,7 @@ function updateSummary() {
 
 function resetRental() {
     selectedVehicle = null;
-    selectedColor = 0;
+    selectedColor = null;
     selectedTime = null;
     selectedPayment = null;
 
@@ -616,7 +636,7 @@ function confirmRental() {
         rentalDurationSeconds: rentalDurations[selectedTime.hours] || 3600,
         rentalPrice: finalPrice,
         paymentType: selectedPayment,
-        vehicleColor: selectedColor,
+        vehicleColor: selectedColor, // Pass the entire color object
         spawnCoords: currentMenuData.spawnCoords,
         spawnHeading: currentMenuData.spawnHeading
     };

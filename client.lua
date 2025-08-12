@@ -1,21 +1,43 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local spawnedVehicles, spawnedPeds = {}, {}
 local lastRentalVehicle = nil
-local activeRentalVehicles = activeRentalVehicles or {}
+local activeRentalVehicles = {}
 local loopingAlarms = {} -- Store looping alarms for non-emergency vehicles
 
 -- =============== PED SPAWN ===============
-function SpawnJobPeds()
-    for job, data in pairs(Config.JobCars) do
-        local pedData = data.ped
-        RequestModel(pedData.model)
-        while not HasModelLoaded(pedData.model) do Wait(0) end
+function SpawnPeds()
+    -- Spawn Job Peds
+    if Config.JobSpawners then
+        for jobName, jobData in pairs(Config.JobSpawners) do
+            if jobData.type == "ped" and jobData.ped_model and jobData.ped_coords then
+                RequestModel(jobData.ped_model)
+                while not HasModelLoaded(jobData.ped_model) do Wait(10) end
+                for _, pedLocationData in ipairs(jobData.ped_coords) do
+                    if pedLocationData.coords then
+                        local ped = CreatePed(0, jobData.ped_model, pedLocationData.coords, false, true)
+                        FreezeEntityPosition(ped, true)
+                        SetEntityInvincible(ped, true)
+                        SetBlockingOfNonTemporaryEvents(ped, true)
+                        table.insert(spawnedPeds, ped)
+                    end
+                end
+            end
+        end
+    end
 
-        local ped = CreatePed(0, pedData.model, pedData.coords.x, pedData.coords.y, pedData.coords.z - 1.0, pedData.coords.w, false, true)
-        FreezeEntityPosition(ped, true)
-        SetEntityInvincible(ped, true)
-        SetBlockingOfNonTemporaryEvents(ped, true)
-        spawnedPeds[job] = ped
+    -- Spawn Rental Peds
+    if Config.RentalSpawner and Config.RentalSpawner.type == "ped" and Config.RentalSpawner.ped_model and Config.RentalSpawner.ped_coords then
+        RequestModel(Config.RentalSpawner.ped_model)
+        while not HasModelLoaded(Config.RentalSpawner.ped_model) do Wait(10) end
+        for _, pedLocationData in ipairs(Config.RentalSpawner.ped_coords) do
+            if pedLocationData.coords then
+                local ped = CreatePed(0, Config.RentalSpawner.ped_model, pedLocationData.coords, false, true)
+                FreezeEntityPosition(ped, true)
+                SetEntityInvincible(ped, true)
+                SetBlockingOfNonTemporaryEvents(ped, true)
+                table.insert(spawnedPeds, ped)
+            end
+        end
     end
 end
 
@@ -36,14 +58,39 @@ function ShowJobMenu(jobName, jobGrade)
 end
 
 function ShowRentalMenu()
-    local rentalOptions = {}
-    for _, duration in ipairs(Config.Rental.durations) do
-        table.insert(rentalOptions, {
-            header = duration .. ' Hour Rental ($' .. (duration * Config.Rental.pricePerHour) .. ')',
-            params = { event = 'jd-carspawner:client:rentCarPrompt', args = { duration = duration } }
+    local timeOptions, rentalFees, rentalDurations = GetRentalTimeOptions()
+    
+    -- Ensure colors are properly formatted for the UI
+    local uiColors = {}
+    for i, color in ipairs(Config.Colors) do
+        table.insert(uiColors, {
+            name = color.name,
+            value = color.value,
+            hex = color.hex
         })
     end
-    exports['qb-menu']:openMenu(rentalOptions)
+
+    local menuData = {
+        type = 'rental',
+        vehicles = Config.RentalSpawner.vehicles,
+        timeOptions = timeOptions,
+        colors = uiColors,  -- Use the properly formatted colors
+        playerName = GetPlayerName(PlayerId()),
+        playerId = GetPlayerServerId(PlayerId()),
+        playerMoney = {
+            cash = QBCore.Functions.GetPlayerData().money.cash,
+            bank = QBCore.Functions.GetPlayerData().money.bank
+        },
+        showPlayerMoney = Config.UI.showPlayerMoney,
+        rentalFees = rentalFees,
+        rentalDurations = rentalDurations,
+        config = Config.UI
+    }
+    
+    SendNUIMessage({
+        action = 'openMenu',
+        data = menuData
+    })
 end
 
 -- =============== VEHICLE SPAWN ===============
@@ -67,34 +114,70 @@ RegisterNetEvent('jd-carspawner:client:spawnJobCar', function(data)
     spawnedVehicles[job] = vehicle
 end)
 
-RegisterNetEvent('jd-carspawner:client:rentCarPrompt', function(data)
-    local dialog = exports['qb-input']:ShowInput({
-        header = "Choose Vehicle and Color",
-        submitText = "Confirm",
-        inputs = {
-            { type = 'text', isRequired = true, name = 'model', text = 'Vehicle Model (e.g., sultan)' },
-            { type = 'color', isRequired = true, name = 'color', text = 'Color' },
-            { type = 'radio', name = 'payment', options = { { value = 'cash', text = 'Cash' }, { value = 'bank', text = 'Bank' } } }
-        }
-    })
-    if not dialog or not dialog.model then return end
-    TriggerServerEvent('jd-carspawner:server:rentCar', dialog.model, dialog.color, dialog.payment, data.duration)
+
+RegisterNUICallback('spawnVehicle', function(data, cb)
+    if data.type == 'job' then
+        -- Handle job vehicle spawning
+        local playerPed = PlayerPedId()
+        RequestModel(data.vehicle)
+        while not HasModelLoaded(data.vehicle) do Wait(10) end
+        
+        local spawnCoords = data.spawnCoords or Config.JobCars[data.jobName].spawnLocations[1]
+        local vehicle = CreateVehicle(data.vehicle, spawnCoords.x, spawnCoords.y, spawnCoords.z, spawnCoords.w, true, false)
+        SetEntityAsMissionEntity(vehicle, true, true)
+        TaskWarpPedIntoVehicle(playerPed, vehicle, -1)
+        
+        SetVehicleNumberPlateText(vehicle, GenerateJobPlate(data.jobName))
+        spawnedVehicles[data.jobName] = vehicle
+        
+        QBCore.Functions.Notify("Job vehicle spawned: " .. data.vehicle, "success")
+        
+    elseif data.type == 'rental' then
+        -- Handle rental vehicle spawning, passing the final price from the UI
+        TriggerServerEvent('jd-carspawner:server:rentCar', data.vehicle, data.vehicleColor, data.paymentType, data.rentalPrice)
+        QBCore.Functions.Notify("Rental request sent for: " .. data.vehicle, "primary")
+    end
+    
+    cb({ status = 'ok' })
 end)
 
-RegisterNetEvent('jd-carspawner:client:spawnRentalCar', function(model, color)
+RegisterNetEvent('jd-carspawner:client:spawnRentalCar', function(model, colorData)
     local playerPed = PlayerPedId()
     RequestModel(model)
     while not HasModelLoaded(model) do Wait(0) end
 
-    local spawnCoords = Config.Rental.spawnLocations[1]
+    local spawnCoords = Config.RentalSpawner.spawn_locations[1]
     local vehicle = CreateVehicle(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, spawnCoords.w, true, false)
     SetEntityAsMissionEntity(vehicle, true, true)
     TaskWarpPedIntoVehicle(playerPed, vehicle, -1)
 
     SetVehicleNumberPlateText(vehicle, "RENT"..math.random(1000, 9999))
-    SetVehicleColours(vehicle, tonumber(color), tonumber(color))
-
+    
+    -- Store vehicle reference
     lastRentalVehicle = vehicle
+    activeRentalVehicles[#activeRentalVehicles+1] = {vehicle = vehicle, model = model, color = colorData}
+    
+    -- Apply color after a short delay to ensure vehicle is ready
+    CreateThread(function()
+        Wait(500) -- Wait for vehicle to be fully loaded
+        if DoesEntityExist(vehicle) and colorData and colorData.value then
+            SetVehicleModKit(vehicle, 0) -- Essential for color changes to apply reliably
+            
+            -- Apply the selected color to both primary and secondary
+            SetVehicleColours(vehicle, colorData.value, colorData.value)
+            
+            -- Set pearlescent color to white (111) for a clean look, unless the car is white
+            local pearlescentColor = 111
+            if colorData.value == 111 then
+                pearlescentColor = 0 -- If car is white, use black pearlescent for contrast
+            end
+            SetVehicleExtraColours(vehicle, pearlescentColor, 0) -- pearlescent, wheels
+            
+            QBCore.Functions.Notify("Vehicle color set to " .. colorData.name, "success")
+        else
+            QBCore.Functions.Notify("Vehicle spawned with default color.", "primary")
+        end
+    end)
 end)
 
 -- =============== UTILS ===============
@@ -133,13 +216,9 @@ end
 
 -- =============== NUI CALLBACKS ===============
 RegisterNUICallback('startRentalSiren', function(data, cb)
-    local rentalIndex = (data.rentalIndex or 0) + 1
-    local index, targetVehicle = 0, nil
-    for _, rentalData in pairs(activeRentalVehicles) do
-        if DoesEntityExist(rentalData.vehicle) then
-            index = index + 1
-            if index == rentalIndex then targetVehicle = rentalData.vehicle break end
-        end
+    local targetVehicle = nil
+    if activeRentalVehicles[1] and DoesEntityExist(activeRentalVehicles[1].vehicle) then
+        targetVehicle = activeRentalVehicles[1].vehicle
     end
 
     if targetVehicle and DoesEntityExist(targetVehicle) then
@@ -164,13 +243,9 @@ RegisterNUICallback('startRentalSiren', function(data, cb)
 end)
 
 RegisterNUICallback('stopRentalSiren', function(data, cb)
-    local rentalIndex = (data.rentalIndex or 0) + 1
-    local index, targetVehicle = 0, nil
-    for _, rentalData in pairs(activeRentalVehicles) do
-        if DoesEntityExist(rentalData.vehicle) then
-            index = index + 1
-            if index == rentalIndex then targetVehicle = rentalData.vehicle break end
-        end
+    local targetVehicle = nil
+    if activeRentalVehicles[1] and DoesEntityExist(activeRentalVehicles[1].vehicle) then
+        targetVehicle = activeRentalVehicles[1].vehicle
     end
 
     if targetVehicle and DoesEntityExist(targetVehicle) then
@@ -193,11 +268,16 @@ end)
 
 -- =============== BASIC COMMANDS FOR TESTING ===============
 RegisterNetEvent('jd-carspawner:client:startRentalSiren', function()
-    if lastRentalVehicle and DoesEntityExist(lastRentalVehicle) then
-        if IsEmergencyVehicle(lastRentalVehicle) then
-            SetVehicleSiren(lastRentalVehicle, true)
+    local targetVehicle = nil
+    if activeRentalVehicles[1] and DoesEntityExist(activeRentalVehicles[1].vehicle) then
+        targetVehicle = activeRentalVehicles[1].vehicle
+    end
+
+    if targetVehicle then
+        if IsEmergencyVehicle(targetVehicle) then
+            SetVehicleSiren(targetVehicle, true)
         else
-            StartLoopingAlarm(lastRentalVehicle)
+            StartLoopingAlarm(targetVehicle)
         end
         QBCore.Functions.Notify("Siren/Alarm started.", "success")
     else
@@ -206,11 +286,16 @@ RegisterNetEvent('jd-carspawner:client:startRentalSiren', function()
 end)
 
 RegisterNetEvent('jd-carspawner:client:stopRentalSiren', function()
-    if lastRentalVehicle and DoesEntityExist(lastRentalVehicle) then
-        if IsEmergencyVehicle(lastRentalVehicle) then
-            SetVehicleSiren(lastRentalVehicle, false)
+    local targetVehicle = nil
+    if activeRentalVehicles[1] and DoesEntityExist(activeRentalVehicles[1].vehicle) then
+        targetVehicle = activeRentalVehicles[1].vehicle
+    end
+
+    if targetVehicle then
+        if IsEmergencyVehicle(targetVehicle) then
+            SetVehicleSiren(targetVehicle, false)
         else
-            StopLoopingAlarm(lastRentalVehicle)
+            StopLoopingAlarm(targetVehicle)
         end
         QBCore.Functions.Notify("Siren/Alarm stopped.", "success")
     else
@@ -219,24 +304,59 @@ RegisterNetEvent('jd-carspawner:client:stopRentalSiren', function()
 end)
 
 -- =============== THREADS ===============
-CreateThread(function() SpawnJobPeds() end)
+CreateThread(function() SpawnPeds() end)
 
+-- Thread for Job Spawners
 CreateThread(function()
     while true do
         local sleep = 1500
-        local ped = PlayerPedId()
-        local coords = GetEntityCoords(ped)
-        for job, data in pairs(Config.JobCars) do
-            local dist = #(coords - vector3(data.ped.coords.x, data.ped.coords.y, data.ped.coords.z))
-            if dist < 2.0 then
-                sleep = 0
-                QBCore.Functions.DrawText3D(data.ped.coords.x, data.ped.coords.y, data.ped.coords.z + 1.0, "[ALT] Open Menu")
-                if IsControlJustReleased(0, 19) then
-                    local jobData = QBCore.Functions.GetPlayerData().job
-                    if jobData.name == job then
-                        ShowJobMenu(job, jobData.grade.level)
-                    else
-                        ShowRentalMenu()
+        local playerPed = PlayerPedId()
+        local playerCoords = GetEntityCoords(playerPed)
+        
+        if Config.JobSpawners then
+            for jobName, jobData in pairs(Config.JobSpawners) do
+                if jobData.ped_coords then
+                    for _, pedLocationData in ipairs(jobData.ped_coords) do
+                        if pedLocationData.coords then
+                            local dist = #(playerCoords - pedLocationData.coords)
+                            if dist < 2.0 then
+                                sleep = 5
+                                QBCore.Functions.DrawText3D(pedLocationData.coords.x, pedLocationData.coords.y, pedLocationData.coords.z + 1.0, "[ALT] Open " .. jobName .. " Menu")
+                                if IsControlJustReleased(0, 19) then
+                                    local playerJob = QBCore.Functions.GetPlayerData().job
+                                    if playerJob.name == jobName then
+                                        ShowJobMenu(jobName, playerJob.grade.level)
+                                    else
+                                        QBCore.Functions.Notify("You don't have the required job.", "error")
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        Wait(sleep)
+    end
+end)
+
+-- Thread for Rental Spawners
+CreateThread(function()
+    while true do
+        local sleep = 1500
+        local playerPed = PlayerPedId()
+        local playerCoords = GetEntityCoords(playerPed)
+
+        if Config.RentalSpawner and Config.RentalSpawner.ped_coords then
+            for _, pedLocationData in ipairs(Config.RentalSpawner.ped_coords) do
+                if pedLocationData.coords then
+                    local dist = #(playerCoords - pedLocationData.coords)
+                    if dist < 2.0 then
+                        sleep = 5
+                        QBCore.Functions.DrawText3D(pedLocationData.coords.x, pedLocationData.coords.y, pedLocationData.coords.z + 1.0, "[ALT] Open Rental Menu")
+                        if IsControlJustReleased(0, 19) then
+                            ShowRentalMenu()
+                        end
                     end
                 end
             end

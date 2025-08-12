@@ -549,6 +549,7 @@ function openJobMenu(playerJob, jobConfig, spawnLocations, jobName)
         gradeNames = jobGradeNames,
         spawnCoords = spawnLocations or jobConfig.spawn_locations or {jobConfig.coords},
         spawnHeading = jobConfig.heading,
+        colors = Config.Colors,  -- Add colors to menuData
         config = Config
     }
 
@@ -577,6 +578,7 @@ function openRentalMenu(spawnerData, spawnLocations)
             bank = PlayerData.money.bank or 0
         },
         showPlayerMoney = Config.UI.showPlayerMoney or false,
+        colors = Config.Colors,  -- Add colors to menuData
         config = Config
     }
 
@@ -668,7 +670,8 @@ RegisterNUICallback("spawnVehicle", function(data, cb)
                         end
                     end
                 end
-                SpawnAndEnterVehicle(data.vehicle, coords, heading, nil, false, nil, nil, data.jobName, extras)
+                local color = data.vehicleColor or 0
+                SpawnAndEnterVehicle(data.vehicle, coords, heading, color, false, nil, nil, data.jobName, extras)
     end
     cb("ok")
 end)
@@ -715,61 +718,38 @@ function SpawnAndEnterVehicle(model, coords, heading, color, isRental, rentalTim
                 pcall(function() TriggerEvent("vehiclekeys:client:SetOwner", plate) end)
             end
             
-                if color and color ~= 0 then
-                    -- Convert HEX color to RGB
-                    local hexColor
-                    if type(color) == "number" then
-                        -- Get HEX color from predefined palette based on index
-                        local hexColors = {
-                            [0] = "000000", -- Black
-                            [1] = "FFFFFF", -- White
-                            [2] = "FF0000", -- Red
-                            [3] = "00FF00", -- Green
-                            [4] = "0000FF", -- Blue
-                            [5] = "FFFF00", -- Yellow
-                            [6] = "FF00FF", -- Magenta
-                            [7] = "00FFFF", -- Cyan
-                            [8] = "C0C0C0", -- Silver
-                            [9] = "808080", -- Gray
-                            [10] = "800000", -- Maroon
-                            [11] = "008000", -- Dark Green
-                            [12] = "000080", -- Navy Blue
-                            [13] = "800080", -- Purple
-                            [14] = "008B8B", -- Dark Cyan
-                            [15] = "4B0082", -- Indigo
-                            [16] = "A52A2A", -- Brown
-                            [17] = "FF4500", -- Orange Red
-                            [18] = "FF8C00", -- Dark Orange
-                            [19] = "FF8000", -- Orange
-                            [20] = "FFD700", -- Gold
-                            [21] = "FF6347", -- Tomato
-                            [22] = "FF69B4", -- Hot Pink
-                            [23] = "FFC0CB", -- Pink
-                            [24] = "9370DB", -- Medium Purple
-                            [25] = "32CD32", -- Lime Green
-                            [26] = "7CFC00", -- Lawn Green
-                            [27] = "40E0D0", -- Turquoise
-                            [28] = "00BFFF", -- Deep Sky Blue
-                            [29] = "1E90FF"  -- Dodger Blue
-                        }
-                        hexColor = hexColors[color] or (color == 0 and "000000" or "FFFFFF")
-                    elseif type(color) == "string" then
-                        hexColor = color:gsub("#", "")
-                    end
-
-                    if hexColor then
-                        -- Convert HEX to RGB
-                        local r = tonumber(hexColor:sub(1, 2), 16)
-                        local g = tonumber(hexColor:sub(3, 4), 16)
-                        local b = tonumber(hexColor:sub(5, 6), 16)
+                    if color and color ~= 0 then
+                        local hexColor
                         
-                        -- Apply colors
-                        SetVehicleCustomPrimaryColour(vehicle, r, g, b)
-                        SetVehicleCustomSecondaryColour(vehicle, r, g, b)
-                    end
-                
-                SetVehicleDirtLevel(vehicle, 0.0)
-                SetVehicleModKit(vehicle, 0)
+                        -- Handle different color value types
+                        if type(color) == "table" then
+                            -- Directly use HEX from color table
+                            hexColor = color.hex and color.hex:gsub("#", "") or nil
+                        elseif type(color) == "number" then
+                            -- Look up color in Config.Colors
+                            for _, c in ipairs(Config.Colors) do
+                                if c.value == color then
+                                    hexColor = c.hex:gsub("#", "")
+                                    break
+                                end
+                            end
+                        elseif type(color) == "string" then
+                            hexColor = color:gsub("#", "")
+                        end
+
+                        if hexColor and #hexColor == 6 then
+                            local r = tonumber(hexColor:sub(1, 2), 16)
+                            local g = tonumber(hexColor:sub(3, 4), 16)
+                            local b = tonumber(hexColor:sub(5, 6), 16)
+                            
+                            if r and g and b then
+                                SetVehicleCustomPrimaryColour(vehicle, r, g, b)
+                                SetVehicleCustomSecondaryColour(vehicle, r, g, b)
+                            end
+                        end
+                    
+                        SetVehicleDirtLevel(vehicle, 0.0)
+                        SetVehicleModKit(vehicle, 0)
                 
                 Wait(100)
                 local engineHealth = GetVehicleEngineHealth(vehicle)
