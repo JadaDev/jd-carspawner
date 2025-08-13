@@ -105,9 +105,3 @@ MIT
 
 ---
 
-*If you'd like, I can also:*
-
-- convert this to a one-file `README.md` you can copy into the repo (I already created this here),
-- add screenshots or an example `config.lua` snippet taken directly from the repo,
-- or prepare a PR that commits the `README.md` for you.
-
