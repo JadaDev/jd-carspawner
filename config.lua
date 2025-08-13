@@ -1,5 +1,8 @@
 Config = {}
 
+-- Target system configuration: 'qb-target' or 'ox_target'
+Config.TargetSystem = 'qb-target'  -- Default to qb-target
+
 Config.TIMER_DEBUG = true -- testing for 10 second - 1 minute - 5 minute - 10 minute.
 
 -- ===============================================

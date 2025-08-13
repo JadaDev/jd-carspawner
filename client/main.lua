@@ -1,5 +1,16 @@
 local alarmThreads = {} -- store active alarm loops by netId
 
+-- Helper function for target system abstraction
+local function AddTargetToPed(ped, options)
+    if Config.TargetSystem == 'qb-target' then
+        exports['qb-target']:AddTargetEntity(ped, options)
+    elseif Config.TargetSystem == 'ox_target' then
+        exports.ox_target:addLocalEntity(ped, options.options)
+    else
+        print("[ERROR] Invalid target system configured: " .. tostring(Config.TargetSystem))
+    end
+end
+
 
 
 RegisterNetEvent("jd-carspawner:startRentalSiren", function(vehicleNetId)
@@ -316,7 +327,7 @@ Citizen.CreateThread(function()
                     FreezeEntityPosition(ped, true)
                     SetBlockingOfNonTemporaryEvents(ped, true)
                     TaskStartScenarioInPlace(ped, "WORLD_HUMAN_STAND_IMPATIENT", 0, true)
-                    exports['qb-target']:AddTargetEntity(ped, {
+                    AddTargetToPed(ped, {
                         options = {
                             {
                                 type = "client",
@@ -347,7 +358,7 @@ Citizen.CreateThread(function()
                     FreezeEntityPosition(ped, true)
                     SetBlockingOfNonTemporaryEvents(ped, true)
                     TaskStartScenarioInPlace(ped, "WORLD_HUMAN_STAND_IMPATIENT", 0, true)
-                    exports['qb-target']:AddTargetEntity(ped, {
+                    AddTargetToPed(ped, {
                         options = {
                             {
                                 type = "client",
@@ -380,7 +391,7 @@ Citizen.CreateThread(function()
                 FreezeEntityPosition(rentalPed, true)
                 SetBlockingOfNonTemporaryEvents(rentalPed, true)
                 TaskStartScenarioInPlace(rentalPed, "WORLD_HUMAN_STAND_IMPATIENT", 0, true)
-                exports['qb-target']:AddTargetEntity(rentalPed, {
+                AddTargetToPed(rentalPed, {
                     options = {
                         {
                             type = "client",
@@ -416,7 +427,7 @@ Citizen.CreateThread(function()
                 FreezeEntityPosition(rentalPed, true)
                 SetBlockingOfNonTemporaryEvents(rentalPed, true)
                 TaskStartScenarioInPlace(rentalPed, "WORLD_HUMAN_STAND_IMPATIENT", 0, true)
-                exports['qb-target']:AddTargetEntity(rentalPed, {
+                AddTargetToPed(rentalPed, {
                     options = {
                         {
                             type = "client",

@@ -5,7 +5,7 @@ lua54 'yes'
 
 author 'JadaDev'
 description 'jd-carspawner a simple car spawner for qbcore jobs and car rental'
-version '0.1.9'
+version '0.2.1'
 
 shared_scripts {
     '@qb-core/shared/locale.lua',
